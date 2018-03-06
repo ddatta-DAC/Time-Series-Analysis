@@ -20,3 +20,7 @@ http://www.statsmodels.org/dev/vector_ar.html
 
 http://machine-learning.martinsewell.com/ann/Dorf96.pdf
 
+
+Stacked AE+LSTM:
+
+http://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0180944&type=printable
