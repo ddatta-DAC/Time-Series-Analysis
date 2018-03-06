@@ -15,4 +15,5 @@ VAR models:
 
 http://www.statsmodels.org/dev/vector_ar.html
 
+http://machine-learning.martinsewell.com/ann/Dorf96.pdf
 
