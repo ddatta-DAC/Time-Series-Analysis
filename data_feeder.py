@@ -41,6 +41,3 @@ def get_data(std=False):
     Y_train = np.reshape(Y_train, [Y_train.shape[0], 1])
     Y_test = np.reshape(Y_test, [Y_test.shape[0], 1])
     return X_train, X_test, Y_train, Y_test , scaler_array
-
-
-get_data(True)
