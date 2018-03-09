@@ -1,19 +1,14 @@
 import numpy as np
-
-np.random.seed(1337)  # for reproducibility
-
-from keras.datasets import mnist
-from keras.layers import Input, Dense
-from keras.datasets import mnist
-import numpy as np
-
-import numpy as np
+from keras.models import load_model
+from keras.layers import Dense
+import h5py
 import keras
 import data_feeder
+from itertools import tee, izip
 
 
 def get_stacked_ae():
-    nb_epoch = 200
+    nb_epoch = 2000
     batch_size = 256
     X_train, _, _, _, _ = data_feeder.get_data(True)
     num_layers = 3
@@ -21,6 +16,7 @@ def get_stacked_ae():
     inp_dim = X_train.shape[-1]
 
     model = keras.models.Sequential()
+
     # input_layer = keras.layers.Dense(units=inp_dim,
     #                                  input_dim=inp_dim,
     #                                  activation=None,
@@ -54,15 +50,49 @@ def get_stacked_ae():
 
         model.pop()
         print model.summary()
-
+    model.save('ae_model.h5')
     return model
 
-get_stacked_ae()
+
+# get_stacked_ae()
+
+def get_windowed_inp(_arr, window_size):
+    _arr = list(np.reshape(_arr, [_arr.shape[0]]))
+
+    def window(iterable, size):
+        iters = tee(iterable, size)
+        for i in xrange(1, size):
+            for each in iters[i:]:
+                next(each, None)
+        return izip(*iters)
+
+    inp = []
+    op = []
+    for w in window(_arr, window_size+1):
+        inp.append(w[:-1])
+        op.append(w[-1])
+
+    inp = np.asarray(inp)
+    op = np.asarray(op)
+    print inp.shape
+    print op.shape
+
+    return inp, op
+
 
 def create_complete_model():
-    model = get_stacked_ae()
+    # model = load_model('ae_model.h5')
+    model = keras.models.Sequential()
+
+    X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data()
+
+    window_size = 8
+    # create windows
+    get_windowed_inp(Y_train, window_size)
+    return
 
     units = 64
+
     batch_input_shape = (batch_size, prev_step, 1)
     lstm1 = keras.layers.LSTM(128, use_bias=True,
                               batch_input_shape=batch_input_shape,
@@ -75,6 +105,9 @@ def create_complete_model():
                               dropout=0.35,
                               stateful=True,
                               return_sequences=True,
-
                               )
     model.add(lstm2)
+    print model.summary()
+
+
+create_complete_model()
