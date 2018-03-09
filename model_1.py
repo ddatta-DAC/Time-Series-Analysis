@@ -5,7 +5,7 @@ import h5py
 import keras
 import data_feeder
 from itertools import tee, izip
-
+import keras.preprocessing.sequence
 
 def get_stacked_ae():
     nb_epoch = 2000
@@ -73,41 +73,76 @@ def get_windowed_inp(_arr, window_size):
         op.append(w[-1])
 
     inp = np.asarray(inp)
-    op = np.asarray(op)
-    print inp.shape
-    print op.shape
+    op = np.reshape(np.asarray(op),[-1,1])
 
     return inp, op
 
 
 def create_complete_model():
-    # model = load_model('ae_model.h5')
-    model = keras.models.Sequential()
-
-    X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data()
-
+    model = load_model('ae_model.h5')
+    X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data(True)
     window_size = 8
     # create windows
-    get_windowed_inp(Y_train, window_size)
-    return
+    inp, op = get_windowed_inp(Y_train, window_size)
+    num_samples = inp.shape[0]
+    X_train = X_train[-num_samples:,:]
+    # concatenate X_train and input passed through ae
+    ae_op = model.predict(X_train)
+    print 'Shape of op from Auto encoder', ae_op.shape
+    inp = np.concatenate([inp,ae_op],axis=1)
 
-    units = 64
+    # Reshape the data
+    lstm_batch_size = 128
+    pad_len = lstm_batch_size - (inp.shape[0]%lstm_batch_size)
 
-    batch_input_shape = (batch_size, prev_step, 1)
-    lstm1 = keras.layers.LSTM(128, use_bias=True,
+    # add padding
+    _inp_pad = np.zeros(shape=[pad_len,inp.shape[-1]])
+    _op_pad = np.zeros(shape=[pad_len, op.shape[-1]])
+
+    inp = np.concatenate([_inp_pad,inp],axis=0)
+    op = np.concatenate([_op_pad, op], axis=0)
+    inp_dim = inp.shape[-1]
+    op_dim = op.shape[-1]
+
+    inp = np.reshape(inp, [-1,lstm_batch_size, inp_dim])
+    op = np.reshape(op, [-1, lstm_batch_size, op_dim])
+
+    model = keras.models.Sequential()
+
+    epochs = 10
+    batch_input_shape = [1,inp.shape[1],inp.shape[-1]]
+    lstm1 = keras.layers.LSTM(128,
+                              use_bias=True,
                               batch_input_shape=batch_input_shape,
-                              dropout=0.20,
+                              dropout=0.25,
                               stateful=True,
                               return_sequences=True,
                               )
     model.add(lstm1)
     lstm2 = keras.layers.LSTM(64, use_bias=True,
-                              dropout=0.35,
+                              dropout=0.25,
                               stateful=True,
                               return_sequences=True,
                               )
     model.add(lstm2)
+    d1 = Dense(units= 64,activation='tanh')
+    model.add(d1)
+    d2 = Dense(units=1, activation='tanh')
+    model.add(d2)
+
+    model.compile(optimizer=keras.optimizers.Adam(),
+                  loss=keras.losses.MSE,
+                  metrics=['accuracy'])
+
+    model.fit(inp,
+              op,
+              epochs=epochs,
+              batch_size=1,
+              shuffle=False)
     print model.summary()
+
+
+
 
 
 create_complete_model()
