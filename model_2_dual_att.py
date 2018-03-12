@@ -109,24 +109,44 @@ class model:
         W_e_dim = [self.time_window , 2 * self.rnn_1_size ]
         b_e_dim = [self.time_window]
         U_e_dim = [self.time_window,self.time_window]
+        v_e_dim = [self.time_window,1]
         W_e = tf.Variable(dtype=tf.float32,initial_value=tf.random_normal (W_e_dim, stddev=0.1), trainable=True)
-        b_e = tf.Variable(dtype=tf.float32,initial_value=tf.random_normal (W_e_dim, stddev=0.1), trainable=True)
+        b_e = tf.Variable(dtype=tf.float32,initial_value=tf.random_normal (b_e_dim, stddev=0.1), trainable=True)
         U_e = tf.Variable(dtype=tf.float32,initial_value=tf.random_normal (U_e_dim, stddev=0.1), trainable=True)
-
+        v_e = tf.Variable(dtype=tf.float32,initial_value=tf.random_normal (v_e_dim, stddev=0.1), trainable=True)
         # W_e *[h(t);c(t)] + U_e * x(1...t)
 
+
+
         z1 = tf.matmul(a=self.rnn_1_state,b=W_e,transpose_b=True)
-        print z1.shape
-        #unstack along each input series dim
-        unstacked_x = tf.unstack(rnn_1_input,axis=2)
+        print 'z1 shape', z1.shape
+        # unstack along each input series dim
+        unstacked_x = tf.unstack(tf.transpose(rnn_1_input,[0,2,1]),axis=1)
         list_tmp = []
         for _x_k in unstacked_x:
             tmp = tf.matmul(a=_x_k,b=U_e)
+            tmp = tmp + z1 + b_e
             list_tmp.append(tmp)
         x_k = tf.stack(list_tmp,axis=2)
-        print x_k.shape
-        # z2 = tf.matmul(a=rnn_1_input, b=U_e )
-        # print z2.shape
+        z2 = tf.tanh(x_k)
+        z2 = tf.unstack(tf.transpose(z2,[0,2,1]),axis=1)
+        list_z2 = []
+        for _z2 in z2 :
+            _z2 = tf.matmul(_z2,v_e)
+            list_z2.append(_z2)
+
+        z2 = tf.stack(list_z2, axis = 1 )
+        print z2.shape
+        att_wts = tf.squeeze(tf.nn.softmax(z2),axis=2)
+        print 'Shape of attention weights' ,att_wts.shape
+
+        encoder_op = (tf.transpose(rnn_1_input,[0,2,1]))
+        encoder_op = encoder_op [:,:,-1]
+        print encoder_op.shape
+        encoder_op = tf.multiply(encoder_op, att_wts)
+        print ' Shape of encoder outputs', encoder_op.shape
+
+
 
 
 model()
