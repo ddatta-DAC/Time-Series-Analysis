@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00ae9479-a59d-49a1-95c6-8b50b1838923" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/model_2_dual_att.py" afterPath="$PROJECT_DIR$/model_2_dual_att.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,8 +17,8 @@
       <file leaf-file-name="model_2_dual_att.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/model_2_dual_att.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="775">
-              <caret line="146" column="43" lean-forward="false" selection-start-line="146" selection-start-column="43" selection-end-line="146" selection-end-column="43" />
+            <state relative-caret-position="444">
+              <caret line="173" column="36" lean-forward="false" selection-start-line="173" selection-start-column="36" selection-end-line="173" selection-end-column="36" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
                 <element signature="e#117#862#0" expanded="false" />
@@ -30,7 +31,7 @@
       <file leaf-file-name="gen_array_ops.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/tensorflow/python/ops/gen_array_ops.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
+            <state relative-caret-position="771">
               <caret line="3865" column="25" lean-forward="false" selection-start-line="3865" selection-start-column="20" selection-end-line="3865" selection-end-column="25" />
               <folding />
             </state>
@@ -40,7 +41,7 @@
       <file leaf-file-name="control_flow_ops.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/tensorflow/python/ops/control_flow_ops.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
+            <state relative-caret-position="47260">
               <caret line="2815" column="0" lean-forward="false" selection-start-line="2815" selection-start-column="0" selection-end-line="2815" selection-end-column="0" />
               <folding />
             </state>
@@ -50,7 +51,7 @@
       <file leaf-file-name="rnn.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/tensorflow/python/ops/rnn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
+            <state relative-caret-position="10132">
               <caret line="613" column="0" lean-forward="false" selection-start-line="613" selection-start-column="0" selection-end-line="613" selection-end-column="0" />
               <folding />
             </state>
@@ -72,6 +73,7 @@
       <find>pretrain_net</find>
       <find>_setup_variables</find>
       <find>.h</find>
+      <find>rnn</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -91,10 +93,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1200" />
-    <option name="y" value="23" />
-    <option name="width" value="1680" />
-    <option name="height" value="999" />
+    <option name="x" value="46" />
+    <option name="y" value="-11" />
+    <option name="width" value="1875" />
+    <option name="height" value="1092" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -127,6 +129,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -138,12 +142,10 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../Health/attentionmodel_1" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Health/attentionmodel_1" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RunDashboard">
@@ -283,18 +285,19 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1200" y="23" width="1680" height="999" extended-state="6" />
+    <frame x="0" y="24" width="1920" height="1027" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.055357143" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.05479452" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32924336" sideWeight="0.50187063" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38278595" sideWeight="0.49812934" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33788395" sideWeight="0.49812934" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -538,7 +541,7 @@
     </entry>
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/tensorflow/python/ops/control_flow_ops.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
+        <state relative-caret-position="47260">
           <caret line="2815" column="0" lean-forward="false" selection-start-line="2815" selection-start-column="0" selection-end-line="2815" selection-end-column="0" />
           <folding />
         </state>
@@ -546,7 +549,7 @@
     </entry>
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/tensorflow/python/ops/rnn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
+        <state relative-caret-position="10132">
           <caret line="613" column="0" lean-forward="false" selection-start-line="613" selection-start-column="0" selection-end-line="613" selection-end-column="0" />
           <folding />
         </state>
@@ -554,7 +557,7 @@
     </entry>
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/tensorflow/python/ops/gen_array_ops.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
+        <state relative-caret-position="771">
           <caret line="3865" column="25" lean-forward="false" selection-start-line="3865" selection-start-column="20" selection-end-line="3865" selection-end-column="25" />
           <folding />
         </state>
@@ -562,8 +565,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/model_2_dual_att.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="775">
-          <caret line="146" column="43" lean-forward="false" selection-start-line="146" selection-start-column="43" selection-end-line="146" selection-end-column="43" />
+        <state relative-caret-position="444">
+          <caret line="173" column="36" lean-forward="false" selection-start-line="173" selection-start-column="36" selection-end-line="173" selection-end-column="36" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
             <element signature="e#117#862#0" expanded="false" />

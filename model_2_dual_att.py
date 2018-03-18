@@ -48,7 +48,8 @@ class model:
         self.time_window = 10
         self.num_exog = 81
         self.dropout_prob = 0.15
-        self.rnn_1_size = 64
+        self.rnn_1_size = 32
+        self.rnn_2_size = 64
         return
 
     def close_session(self):
@@ -76,11 +77,9 @@ class model:
 
     def build(self):
         self.x_exog = tf.placeholder(dtype=tf.float32, shape=[None,self.time_window,self.num_exog])
-
         self.rnn_1 = self.get_lstm_layer( num_layers = 1, rnn_size = self.rnn_1_size , state_is_tuple = False )
         rnn_1_input = self.x_exog
         self.rnn_1_last_state = None
-
 
         if self.rnn_1_last_state is None:
             init_state = None
@@ -147,7 +146,32 @@ class model:
         print ' Shape of encoder outputs', encoder_op.shape
 
 
+        # Construct the decoder layer
+        self.decoder_t_step = 10
+        # Reshape the batch using temporal Window Size
+        print (type(encoder_op))
+        decoder_inp = tf.reshape(encoder_op,[-1,self.decoder_t_step,self.num_exog])
+        print 'Feeding into decoder : ', decoder_inp.shape
 
+        self.rnn_2 = self.get_lstm_layer(num_layers=1, rnn_size=self.rnn_2_size, state_is_tuple=False)
+
+        self.rnn_2_last_state = None
+
+        if self.rnn_2_last_state is None:
+            init_state = None
+        else:
+            init_state = tuple(tf.unstack(self.rnn_2_last_state, axis=1))
+
+        with tf.variable_scope('rnn_2'):
+            self.rnn_2_op, self.rnn_2_state = tf.nn.dynamic_rnn(
+                cell=self.rnn_2,
+                inputs=decoder_inp,
+                initial_state=init_state,
+                dtype=tf.float32
+            )
+
+        print self.rnn_2_op.shape
+        print self.rnn_2_state.shape
 
 model()
 
