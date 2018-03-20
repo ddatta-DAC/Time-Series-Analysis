@@ -30,6 +30,7 @@ def get_data(std=False):
     # Y is the target series
 
     Y = np.asarray(list(df[nasdaq_attr]))
+
     if std is True:
         scaler = preprocessing.StandardScaler().fit(Y.reshape(-1, 1))
         Y = scaler.transform(Y.reshape(-1, 1))
