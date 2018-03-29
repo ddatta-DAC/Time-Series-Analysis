@@ -17,8 +17,8 @@ def get_data(std=False):
     for c in cols:
         x = df[c]
         if std is True:
-            scaler = preprocessing.StandardScaler().fit(x.reshape(-1, 1))
-            x = scaler.transform(x.reshape(-1, 1))
+            scaler = preprocessing.StandardScaler().fit(x.values.reshape(-1, 1))
+            x = scaler.transform(x.values.reshape(-1, 1))
             scaler_array.append(scaler)
         data.append(x)
 
@@ -38,7 +38,6 @@ def get_data(std=False):
 
 
     X_train, X_test, Y_train, Y_test = sklearn.model_selection.train_test_split(X, Y, test_size=config.test_size)
-
     Y_train = np.reshape(Y_train, [Y_train.shape[0], 1])
     Y_test = np.reshape(Y_test, [Y_test.shape[0], 1])
     return X_train, X_test, Y_train, Y_test , scaler_array
