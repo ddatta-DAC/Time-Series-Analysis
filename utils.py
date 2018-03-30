@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from itertools import tee, izip
+import numpy as np
 
+# ---------------------------- #
 
 def plot(x,y):
     # plt.xticks(range(min(x), max(x) + 1, 1000))
@@ -8,9 +10,8 @@ def plot(x,y):
     plt.show()
 
 
-# window the exogenous input
 def get_windowed_data(data, window_size):
-    # local function
+    print ' window_size' , window_size
     def window(iterable, size):
         iters = tee(iterable, size)
         for i in xrange(1, size):
@@ -21,6 +22,7 @@ def get_windowed_data(data, window_size):
     op = []
     for w in window(data, window_size):
         w = np.reshape(w, [-1])
+
         op.append(w)
 
     op = np.asarray(op)

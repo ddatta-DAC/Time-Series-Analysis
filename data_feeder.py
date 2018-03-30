@@ -24,7 +24,7 @@ def get_data(std=False):
 
     # X is the driving series
     X = np.asarray(data)
-    print X.shape
+
     X = np.reshape(X, [X.shape[0], X.shape[1]])
     X = np.transpose(X, [1, 0])
     # Y is the target series
