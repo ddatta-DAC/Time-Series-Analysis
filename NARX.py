@@ -10,6 +10,11 @@ from itertools import tee, izip
 import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from keras.layers import Input, Dense
+from keras.models import Model
+from keras.layers.convolutional import Conv1D
+from keras.layers.pooling import MaxPooling1D
+from keras.layers import Flatten
 
 # Focussed TDNN
 
@@ -37,7 +42,6 @@ def get_windowed_data_ex(data, window_size):
         return izip(*iters)
 
     op = []
-
     for w in window(data, window_size):
         w = np.reshape(w, [-1])
         op.append(w)
@@ -140,35 +144,60 @@ def FTDNN():
 
 # FTDNN()
 
-def FTDNN_conv_model():
-    model = keras.models.Sequential()
+# ------------------------------ #
 
-    # Add in layers
-    num_layers = int(math.log(window_size, 2))
-    print int(math.floor(num_layers))
-
-    for l in range(num_layers):
-        if l == 0:
-            num_units = target_window
-            layer = keras.layers.Dense(
-                units=num_units,
-                input_shape=[window_size],
-                activation='tanh')
+def conv_aux(window_size,i):
+    exog_inp = Input(shape=[window_size,1], dtype='float32', name= 'exg_inp_'+str(i))
+    conv1_op = Conv1D(filters=1, kernel_size=32, activation='relu')(exog_inp)
+    pool1_op = MaxPooling1D(pool_size=16)(conv1_op)
+    # conv2_op = Conv1D(filters=1, kernel_size=16, activation='relu')(pool1_op)
+    # pool2_op = MaxPooling1D(pool_size=2)(conv2_op)
+    pool2_op = keras.layers.Flatten()(pool1_op)
+    output = Dense(1, activation='tanh')(pool2_op)
+    return exog_inp, output
 
 
+def FTDNN_conv_model(window_size, exog_dim):
 
-    return
+    exg_conv_op = []
+    input = []
+    for i in range(exog_dim):
+        exg_inp, ex_op = conv_aux(window_size, i)
+        input.append(exg_inp)
+        exg_conv_op.append(ex_op)
+
+    exg_1 = keras.layers.concatenate(exg_conv_op)
+    print exg_1
+    end_inp = Input(shape=[window_size])
+    input.append(end_inp)
+    layer_1 = Dense(16, activation='tanh')(end_inp)
+    # layer_2 = Dense(16, activation='tanh')(layer_1)
+
+    op_1 = keras.layers.concatenate(inputs = [exg_1, layer_1])
+    layer_3 = Dense(8, activation='tanh')(op_1)
+    output = Dense(1, activation='tanh')(layer_3)
+    return input, output
 
 
-def FTDNN_conv():
-    global target_window
-    X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data(True)
+
+def _get_data(window_size):
+
+
+    exog_train, exog_test, end_train, end_test, scaler_array = data_feeder.get_data(True)
 
     # print X_train.shape
     # print Y_train.shape
-    train_windowed_data = get_windowed_data_ex(Y_train, target_window + 1)
-    test_windowed_data = get_windowed_data_ex(Y_test, target_window + 1)
-    print train_windowed_data.shape
+    train_windowed_data_exg = get_windowed_data_ex(exog_train, target_window + 1)
+    test_windowed_data_exg = get_windowed_data_ex(exog_test, target_window + 1)
+
+    train_windowed_data_end = get_windowed_data_ex(end_train, target_window + 1)
+    test_windowed_data_end = get_windowed_data_ex(end_test, target_window + 1)
+
+    print test_windowed_data_end.shape
+    print test_windowed_data_exg.shape
+
+    return
+
     # Set up training input and output
     x_train = []
     y_train = []
@@ -197,5 +226,27 @@ def FTDNN_conv():
     print y_test.shape
 
 
+def FTDNN_conv():
+    global target_window
+    window_size = target_window
 
-FTDNN_conv()
+
+    model_in , model_op = FTDNN_conv_model(window_size, 81)
+    x_inputs = []
+
+    for i in range(81):
+        x_inputs.append(np.random.rand(1000, window_size,1))
+    x_inputs.append(np.random.rand(1000, window_size))
+    y_inp = np.random.rand(1000,1)
+    print len(x_inputs)
+    model = Model(inputs=model_in, outputs=model_op)
+    model.compile(
+        optimizer='adam',
+        loss = 'mse'
+    )
+    # model.summary()
+    model.fit(x=x_inputs,y=y_inp)
+
+
+# FTDNN_conv()
+_get_data(128)
