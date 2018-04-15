@@ -2,8 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00ae9479-a59d-49a1-95c6-8b50b1838923" name="Default" comment="">
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model_5.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_5.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/NARX.py" beforeDir="false" afterPath="$PROJECT_DIR$/NARX.py" afterDir="false" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,15 +21,25 @@
       <file leaf-file-name="model_4.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model_4.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="1908">
               <caret line="112" column="8" selection-start-line="112" selection-start-column="8" selection-end-line="112" selection-end-column="8" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
+=======
+            <state relative-caret-position="1649">
+              <caret line="116" selection-start-line="116" selection-end-line="116" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+                <element signature="e#117#862#0" />
+                <element signature="e#403#418#0" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
               </folding>
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="model_4_1.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/model_4_1.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -33,6 +47,20 @@
               <caret line="205" lean-forward="true" selection-start-line="205" selection-end-line="205" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
+=======
+      <file leaf-file-name="model_4.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/model_4.py">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file leaf-file-name="NARX.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/NARX.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="464">
+              <caret line="197" column="32" selection-start-line="197" selection-start-column="32" selection-end-line="197" selection-end-column="32" />
+              <folding>
+                <element signature="e#30#49#0" expanded="true" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
               </folding>
             </state>
           </provider>
@@ -74,8 +102,13 @@
       <file leaf-file-name="eda_1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/eda_1.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="576">
               <caret line="38" column="20" selection-start-line="38" selection-start-column="20" selection-end-line="38" selection-end-column="20" />
+=======
+            <state relative-caret-position="383">
+              <caret line="43" column="58" selection-start-line="43" selection-start-column="10" selection-end-line="43" selection-end-column="58" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -86,8 +119,13 @@
       <file leaf-file-name="model_3.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model_3.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="3960">
               <caret line="226" selection-start-line="226" selection-end-line="226" />
+=======
+            <state relative-caret-position="850">
+              <caret line="50" column="30" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
               <folding>
                 <element signature="e#285#303#0" expanded="true" />
               </folding>
@@ -98,6 +136,7 @@
       <file leaf-file-name="model_3_1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model_3_1.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="90">
               <caret line="5" selection-start-line="5" selection-end-line="5" selection-end-column="35" />
             </state>
@@ -124,6 +163,10 @@
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
+=======
+            <state relative-caret-position="17">
+              <caret line="1" selection-start-line="1" selection-end-line="1" selection-end-column="35" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
             </state>
           </provider>
         </entry>
@@ -145,7 +188,12 @@
       <find>.h</find>
       <find>rnn</find>
       <find>tee</find>
+<<<<<<< HEAD
       <find>windowe</find>
+=======
+      <find>window</find>
+      <find>ar</find>
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -154,13 +202,18 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/NARX.py" />
+=======
+        <option value="$PROJECT_DIR$/eda_1.py" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
         <option value="$PROJECT_DIR$/config.py" />
         <option value="$PROJECT_DIR$/ae.py" />
         <option value="$PROJECT_DIR$/model_1.py" />
         <option value="$PROJECT_DIR$/model_2_dual_att.py" />
         <option value="$PROJECT_DIR$/model_3.py" />
         <option value="$PROJECT_DIR$/model_3_1.py" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/utils.py" />
         <option value="$PROJECT_DIR$/data_feeder.py" />
         <option value="$PROJECT_DIR$/arimax.py" />
@@ -168,14 +221,16 @@
         <option value="$PROJECT_DIR$/model_4.py" />
         <option value="$PROJECT_DIR$/model_4_1.py" />
         <option value="$PROJECT_DIR$/model_5.py" />
+=======
+        <option value="$PROJECT_DIR$/NARX.py" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1200" />
-    <option name="y" value="23" />
-    <option name="width" value="1680" />
-    <option name="height" value="999" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="y" value="24" />
+    <option name="width" value="1920" />
+    <option name="height" value="1027" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -198,7 +253,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -210,6 +264,10 @@
           <select />
         </subPane>
       </pane>
+<<<<<<< HEAD
+=======
+      <pane id="Scope" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -233,8 +291,13 @@
       </list>
     </option>
   </component>
+<<<<<<< HEAD
   <component name="RunManager" selected="Python.model_4_1">
     <configuration name="eda_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+  <component name="RunManager" selected="Python.NARX">
+    <configuration name="NARX" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <module name="Time-Series-Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -246,13 +309,21 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+<<<<<<< HEAD
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/eda_1.py" />
+=======
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/NARX.py" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+<<<<<<< HEAD
     <configuration name="model_3" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+    <configuration name="model_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <module name="Time-Series-Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -264,13 +335,21 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+<<<<<<< HEAD
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_3.py" />
+=======
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_1.py" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+<<<<<<< HEAD
     <configuration name="model_3_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+    <configuration name="model_2_dual_att" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <module name="Time-Series-Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -282,13 +361,21 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+<<<<<<< HEAD
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_3_1.py" />
+=======
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_2_dual_att.py" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+<<<<<<< HEAD
     <configuration name="model_4" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+    <configuration name="model_3" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <module name="Time-Series-Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -300,13 +387,21 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+<<<<<<< HEAD
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_4.py" />
+=======
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_3.py" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+<<<<<<< HEAD
     <configuration name="model_4_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+    <configuration name="model_3_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <module name="Time-Series-Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -318,13 +413,18 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+<<<<<<< HEAD
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_4_1.py" />
+=======
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model_3_1.py" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <list>
+<<<<<<< HEAD
       <item itemvalue="Python.model_3" />
       <item itemvalue="Python.model_3_1" />
       <item itemvalue="Python.eda_1" />
@@ -338,6 +438,21 @@
         <item itemvalue="Python.eda_1" />
         <item itemvalue="Python.model_3_1" />
         <item itemvalue="Python.model_3" />
+=======
+      <item itemvalue="Python.model_1" />
+      <item itemvalue="Python.model_2_dual_att" />
+      <item itemvalue="Python.model_3" />
+      <item itemvalue="Python.model_3_1" />
+      <item itemvalue="Python.NARX" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.NARX" />
+        <item itemvalue="Python.model_3_1" />
+        <item itemvalue="Python.model_3" />
+        <item itemvalue="Python.model_2_dual_att" />
+        <item itemvalue="Python.model_1" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       </list>
     </recent_temporary>
   </component>
@@ -355,9 +470,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1680" y="27" width="1920" height="1140" extended-state="6" />
+    <frame x="0" y="24" width="1920" height="1027" extended-state="6" />
     <editor active="true" />
     <layout>
+<<<<<<< HEAD
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1592827" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.50187063" side_tool="true" weight="0.32924336" />
@@ -377,6 +493,27 @@
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="right" id="R Graphics" order="4" />
       <window_info anchor="bottom" id="Message" order="0" />
+=======
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1444563" />
+      <window_info anchor="bottom" id="TODO" order="5" />
+      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.50187063" side_tool="true" weight="0.32924336" />
+      <window_info active="true" anchor="right" id="Run" order="6" sideWeight="0.49812934" visible="true" weight="0.38219616" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Python Console" order="8" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.37343928" />
+      <window_info anchor="bottom" id="Debug" order="2" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" id="R Graphics" order="4" />
+      <window_info anchor="right" id="R Packages" order="3" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
       <window_info anchor="right" id="Data View" order="5" />
     </layout>
   </component>
@@ -389,6 +526,46 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+<<<<<<< HEAD
+=======
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/layers/core.py" />
+    <entry file="file://$PROJECT_DIR$/data/nasdaq100_padding.csv">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/-1247972723/numpy/core/multiarray.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="317">
+          <caret line="564" column="4" selection-start-line="564" selection-start-column="4" selection-end-line="564" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/matplotlib/pyplot.py" />
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="12" selection-start-column="12" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/engine/topology.py" />
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/sklearn/preprocessing/data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="407">
+          <caret line="663" column="40" selection-start-line="663" selection-start-column="31" selection-end-line="663" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_feeder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="35" column="35" lean-forward="true" selection-start-line="35" selection-start-column="35" selection-end-line="35" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model_1.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
     <entry file="file://$PROJECT_DIR$/model_1.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="765">
@@ -463,10 +640,17 @@
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/matplotlib/axes/_axes.py" />
     <entry file="file://$PROJECT_DIR$/README.md" />
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/layers/__init__.py" />
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/NARX.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+=======
+    <entry file="file://$PROJECT_DIR$/eda_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="13" column="10" lean-forward="true" selection-start-line="13" selection-start-column="10" selection-end-line="13" selection-end-column="10" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
         </state>
       </provider>
     </entry>
@@ -530,6 +714,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="2815" selection-start-line="2815" selection-end-line="2815" />
+<<<<<<< HEAD
+=======
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" selection-start-line="1" selection-end-line="1" selection-end-column="35" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
         </state>
       </provider>
     </entry>
@@ -556,6 +750,7 @@
     </entry>
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/utils/conv_utils.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="192">
           <caret line="35" selection-start-line="35" selection-end-line="35" />
         </state>
@@ -593,12 +788,17 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
           <caret line="24" selection-start-line="24" selection-end-line="24" />
+=======
+        <state relative-caret-position="383">
+          <caret line="43" column="58" selection-start-line="43" selection-start-column="10" selection-end-line="43" selection-end-column="58" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/numpy/core/fromnumeric.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1380">
@@ -640,19 +840,48 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="5" selection-start-line="5" selection-end-line="5" selection-end-column="35" />
+=======
+    <entry file="file://$PROJECT_DIR$/model_3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="850">
+          <caret line="50" column="30" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
+          <folding>
+            <element signature="e#285#303#0" expanded="true" />
+          </folding>
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/model_4.py">
+    <entry file="file://$PROJECT_DIR$/model_3_1.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="1908">
           <caret line="112" column="8" selection-start-line="112" selection-start-column="8" selection-end-line="112" selection-end-column="8" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
+=======
+        <state relative-caret-position="518">
+          <caret line="128" column="33" lean-forward="true" selection-start-line="128" selection-start-column="33" selection-end-line="128" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/model_2_dual_att.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1649">
+          <caret line="116" selection-start-line="116" selection-end-line="116" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#117#862#0" />
+            <element signature="e#403#418#0" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
+          </folding>
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
     <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/engine/topology.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8154">
@@ -686,6 +915,31 @@
           <caret line="205" lean-forward="true" selection-start-line="205" selection-end-line="205" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
+=======
+    <entry file="file://$PROJECT_DIR$/model_4.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/layers/core.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="348" column="35" selection-start-line="348" selection-start-column="23" selection-end-line="348" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python2.7/site-packages/keras/layers/merge.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="629" column="22" selection-start-line="629" selection-start-column="16" selection-end-line="629" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NARX.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="464">
+          <caret line="197" column="32" selection-start-line="197" selection-start-column="32" selection-end-line="197" selection-end-column="32" />
+          <folding>
+            <element signature="e#30#49#0" expanded="true" />
+>>>>>>> 76d882827478b29b5e7184d58957ebf8668cc368
           </folding>
         </state>
       </provider>
