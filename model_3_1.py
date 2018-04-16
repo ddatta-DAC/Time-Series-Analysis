@@ -8,11 +8,14 @@ from itertools import tee, izip
 import utils
 
 
-ae_1_epoch = 500
-ae_2_epoch = 500
-lstm_epochs = 1000
-lstm_time_steps = 8
+ae_1_epoch = 250
+ae_2_epoch = 250
+lstm_epochs = 100
+lstm_time_steps = 16
 
+# set up autoencoder with inputs as [ x(t-k)...x(t-1), y(t) ]
+exog_lag = 32
+endo_lag = 8
 
 # stacked autoencoder
 class ae_class:
@@ -48,7 +51,6 @@ class ae_class:
             self.train_losses = []
             self.train_acc = []
             print 'Building layer ', i + 1
-
             if i == 0:
                 op_x = self.X
             else:
@@ -75,7 +77,7 @@ class ae_class:
             model.add(layer)
             model.compile(optimizer=keras.optimizers.Adam(),
                           loss=keras.losses.MSE,
-                          metrics=['accuracy'])
+                          metrics=['mse'])
             # ===== #
             # Train the model
 
@@ -90,6 +92,8 @@ class ae_class:
                     _x = x[i * self.batch_size:(i + 1) * self.batch_size, :]
                     _y = y[i * self.batch_size:(i + 1) * self.batch_size, :]
                     bs = _x.shape[0]
+                    print 'Train x shape', _x.shape
+                    print 'Train y shape',_y.shape
                     hist = model.fit(
                         _x,
                         _y,
@@ -99,7 +103,6 @@ class ae_class:
                         verbose=True
                     )
                     self.train_losses.extend(hist.history['loss'])
-                    self.train_acc.extend(hist.history['acc'])
             for layer in model.layers:
                 layer.trainable = False
 
@@ -136,24 +139,26 @@ X_train, _, Y_train, _, _ = data_feeder.get_data(True)
 
 # set up autoencoder for exogenous values
 ae_obj_1 = ae_class(1)
-ae_obj_1.set_hyperparams(layer_units=[64, 32, 16], inp_dim=X_train.shape[-1], batch_size=512, epochs=ae_1_epoch)
+ae_obj_1.set_hyperparams(layer_units=[64, 32, 16],
+                         inp_dim=X_train.shape[-1],
+                         batch_size=512,
+                         epochs=ae_1_epoch)
+
 print 'Shape of training data for 1st auto encoder', X_train.shape
 ae_obj_1.set_data(X_train)
 ae_1_losses, ae_1_acc = ae_obj_1.load_model()
 print 'Auto Encoder 1'
-ae_obj_1.model.summary()
+# ae_obj_1.model.summary()
 # ------ #
 
-# set up autoencoder with inputs as [ x(t-k)...x(t-1), y(t) ]
-exog_lag = 10
-endo_lag = 5
 
 xformed_exog_train = ae_obj_1.model.predict(X_train)
-_x1 = get_windowed_data(data=xformed_exog_train, window_size=exog_lag)
-_y1 = get_windowed_data(data=Y_train, window_size=endo_lag)
+print 'Shape of xformed_exog_train ', xformed_exog_train.shape
+_x1 = get_windowed_data (data=xformed_exog_train, window_size=exog_lag)
+_y1 = get_windowed_data (data=Y_train, window_size=endo_lag)
 
-print _x1.shape
-print _y1.shape
+print ' _x1 ', _x1.shape
+print ' _y1',  _y1.shape
 # select the num of samples common to
 num_samples = min(_x1.shape[0], _y1.shape[0])
 _x1 = _x1[-num_samples:]
@@ -161,12 +166,17 @@ _y1 = _y1[-num_samples:]
 ae2_train_data = np.concatenate([_x1, _y1], axis=-1)
 print 'Shape of training data for 2nd auto encoder', ae2_train_data.shape
 
+ae_2_inp_dim = ae2_train_data.shape[-1]
+print ' ae_2_inp_dim ', ae_2_inp_dim
 ae_obj_2 = ae_class(2)
-ae_obj_2.set_hyperparams(layer_units=[64, 32, 16], inp_dim=165, batch_size=512, epochs=ae_2_epoch)
+ae_obj_2.set_hyperparams(layer_units=[64, 32, 16],
+                         inp_dim=ae_2_inp_dim,
+                         batch_size=512,
+                         epochs=ae_2_epoch)
 ae_obj_2.set_data(ae2_train_data)
 ae_2_losses, ae_2_acc = ae_obj_2.load_model()
 print 'Auto Encoder 2'
-ae_obj_2.model.summary()
+# ae_obj_2.model.summary()
 
 
 # Use the output of the hierarchical AE to be  input for a LSTM
@@ -190,6 +200,7 @@ class lstm_model:
     def load_model(self):
         if os.path.exists(self.save_file):
             self.model = load_model(self.save_file)
+            pass
         else:
             return self.build_model()
         return None, None
@@ -202,6 +213,10 @@ class lstm_model:
         self.inp_dimension = self.x.shape[-1]
 
     def build_model(self):
+        self.train_losses = []
+        self.train_mape = []
+        self.train_mse = []
+        self.train_mae = []
         model = keras.models.Sequential()
         layer1 = keras.layers.LSTM(units=self.lstim_units[0],
                                    input_shape=(self.time_step, self.inp_dimension),
@@ -214,9 +229,9 @@ class lstm_model:
                                    return_sequences=True
                                    )
         model.add(layer2)
-        layer3 = keras.layers.Dense(units=16, activation='tanh')
+        layer3 = keras.layers.TimeDistributed(keras.layers.Dense(units=16, activation='tanh'))
         model.add(layer3)
-        layer4 = keras.layers.Dense(units=1, activation='tanh')
+        layer4 = keras.layers.TimeDistributed(keras.layers.Dense(units=1, activation='tanh'))
         model.add(layer4)
         model.summary()
 
@@ -232,20 +247,26 @@ class lstm_model:
 
 
     def train_model(self):
-        self.error_keys = {'mse':'mean_squared_error',
-                           'mae':'mean_absolute_error',
-                           'mape':'mean_absolute_percentage_error'
-                           }
+
+        if os.path.exists(self.save_file):
+            return
+
+        self.error_keys = {
+            'mse':'mean_squared_error',
+            'mae':'mean_absolute_error',
+            'mape':'mean_absolute_percentage_error'
+        }
 
         batch_size = self.batch_size * self.time_step
         num_batches = (self.x.shape[0] - 1) // batch_size + 1
-        print num_batches
+
         self.train_losses = []
         self.train_mape = []
         self.train_mse = []
         self.train_mae = []
 
         for _ in range(self.epochs):
+
             for i in range(num_batches):
                 _x = self.x[i * batch_size:(i + 1) * batch_size, :]
                 _y = self.y[i * batch_size:(i + 1) * batch_size, :]
@@ -269,11 +290,28 @@ class lstm_model:
                 )
 
                 self.train_losses.extend(hist.history['loss'])
-                self.train_mape.extend(hist.history[self.error_keys['mape']])
+                # self.train_mape.extend(hist.history[self.error_keys['mape']])
                 self.train_mse.extend(hist.history[self.error_keys['mse']])
-                self.train_mae.extend(hist.history[self.error_keys['mae']])
+                # self.train_mae.extend(hist.history[self.error_keys['mae']])
         self.model.save(self.save_file)
 
+
+    def test(self, x ,y ):
+        print 'In test ...'
+
+        _samples = self.time_step * (x.shape[0] // self.time_step)
+        x = x[-_samples:,:]
+        y = y[-_samples:,:]
+
+        s_n = _samples/self.time_step
+        x = np.reshape(x, [-1, self.time_step,x.shape[-1]])
+        y = np.reshape(y, [s_n, self.time_step, 1])
+
+        print x.shape
+        print y.shape
+
+        result = self.model.evaluate(x, y)
+        print 'Mean Square Error', result[2]
 
 
 # Input to lstm should be output of the auto-encoder layer of d-dimension
@@ -283,17 +321,24 @@ class lstm_model:
 
 print 'total training points ', X_train.shape[0]
 xformed_exog_train = ae_obj_1.model.predict(X_train)
-print xformed_exog_train.shape
+print 'xformed_exog_train', xformed_exog_train.shape
 
 _x1 = get_windowed_data(data=xformed_exog_train, window_size=exog_lag)
-_x2 = get_windowed_data(data=Y_train, window_size=endo_lag)
-_y = get_windowed_data(data=Y_train, window_size=1)
+_x2 = get_windowed_data (data=Y_train, window_size = endo_lag+1)
+_x2 = _x2[:,0:endo_lag]
+_y = _x2[:,-1:]
+
+
 
 num_samples = min(_x1.shape[0], _x2.shape[0])
 _x1 = _x1[-num_samples:]
 _x2 = _x2[-num_samples:]
 _y = _y[-num_samples:, :]
-print _x1.shape, _x2.shape, _y.shape
+
+print '> 1', _x1.shape
+print '> 2', _x2.shape
+print '> 3', _y.shape
+
 ae2_inp = np.concatenate([_x1, _x2], axis=-1)
 print 'AE 2 input shape', ae2_inp.shape
 x = ae_obj_2.model.predict(ae2_inp)
@@ -303,7 +348,11 @@ print 'shape of x and y', x.shape, _y.shape
 # y = np.random.randn(1000,1)
 
 lstm_model_obj = lstm_model()
-lstm_model_obj.set_hyperparams(lstm_units=[32, 16], time_step=lstm_time_steps, epochs=lstm_epochs, batch_size=256)
+lstm_model_obj.set_hyperparams(lstm_units=[32, 16],
+                               time_step = lstm_time_steps,
+                               epochs=lstm_epochs,
+                               batch_size=256
+                               )
 lstm_model_obj.set_train_data(x, _y)
 lstm_losses, train_mape, train_mse, train_mae = lstm_model_obj.build_model()
 
@@ -319,8 +368,44 @@ fp.close()
 
 
 
-for z in plot_list:
+for z in [train_mse]:
     if z is None: continue
     print np.asanyarray(z).shape
     xz = range(len(z))
-    utils.plot(xz,z)
+    # utils.plot(xz,z)
+
+
+
+
+# Test
+# ae_obj_1 = ae_class(1)
+# ae_obj_2 = ae_class(2)
+
+_, X_test, _, Y_test, _ = data_feeder.get_data(True)
+xformed_exog_test = ae_obj_1.model.predict(X_test)
+
+_x1 = get_windowed_data (data=xformed_exog_test, window_size=exog_lag)
+_x2 = get_windowed_data (data=Y_test, window_size = endo_lag+1)
+_x2 = _x2[:,0:endo_lag]
+_y = _x2[:,-1:]
+test_y = _y
+# _y = get_windowed_data  (data=Y_test, window_size = 1)
+
+num_samples = min(_x1.shape[0], _x2.shape[0])
+_x1 = _x1[-num_samples:]
+_x2 = _x2[-num_samples:]
+_y = _y[-num_samples:, :]
+ae2_inp = np.concatenate([_x1, _x2], axis=-1)
+test_x = ae_obj_2.model.predict(ae2_inp)
+lstm_model_obj.test(test_x, test_y)
+
+# _x1 = get_windowed_data (data=xformed_exog_test, window_size=exog_lag)
+# _y1 = get_windowed_data (data=Y_test, window_size=endo_lag)
+# num_samples = min(_x1.shape[0], _y1.shape[0])
+# _x1 = _x1[-num_samples:]
+# _y1 = _y1[-num_samples:]
+# ae2_test_data = np.concatenate([_x1, _y1], axis=-1)
+# ae_2_inp_dim = ae2_test_data.shape[-1]
+
+
+

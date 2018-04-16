@@ -11,6 +11,7 @@
   - [ z[t-w2), z(t-w2+1), ... z(t-1)]
 
 '''
+
 import data_feeder
 import tensorflow as tf
 import numpy as np
@@ -20,8 +21,9 @@ from itertools import tee, izip
 import matplotlib.pyplot as plt
 
 # -- Common hyperparams -- #
-window_size = 50
-ae_max_epochs = 50
+
+window_size = 100
+ae_max_epochs = 1000
 
 # ------------------------------------------------------------ #
 # design the autoencoder #
@@ -141,11 +143,12 @@ def pretrain_ae(X_train):
     ae_obj.layerwise_train()
     ae_op = ae_obj.reduce(X_train)
     print ae_op.shape
-    return ae_op
+    return ae_obj, ae_op
 
 # --------------------------------------------------------------------------------------- #
 
 X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data(True)
+
 
 # ----------------- #
 # Create sliding window of target value #
@@ -178,19 +181,21 @@ def get_windowed_y( data , window_size):
 
 
 # set up train data
-X_train_ae = pretrain_ae(X_train)
-train_y_inp,train_y_op = get_windowed_y(Y_train,window_size = window_size)
+ae_obj, X_train_ae = pretrain_ae(X_train)
+train_y_inp, train_y_op = get_windowed_y (Y_train, window_size = window_size)
 train_exog_inp = X_train_ae[window_size:,:]
+print ' train_exog_inp ', train_exog_inp.shape
 # concatenate train_exog_inp and train_y_op
 train_data_x = np.concatenate([train_y_inp,train_exog_inp],axis = 1)
+print 'train_data_x', train_data_x.shape
 print 'Train Data'
-print train_data_x.shape
-print train_y_op.shape
-
+print 'Train_data_x ', train_data_x.shape
+print 'train_data_x', train_y_op.shape
 
 # set up test data the model
+
 test_y_inp,test_y_op = get_windowed_y(Y_test,window_size = window_size)
-X_test_ae = pretrain_ae(X_test)
+X_test_ae = ae_obj.reduce(X_test)
 test_exog_inp = X_test_ae[window_size:,:]
 # concatenate train_exog_inp and train_y_op
 test_data_x = np.concatenate([test_y_inp,test_exog_inp],axis = 1)
@@ -199,28 +204,38 @@ print test_data_x.shape
 print test_y_op.shape
 
 # initialise the Support Vector Regressor
-model = SVR(kernel='rbf',
+# model = SVR(kernel='rbf',
+#             C=1.0,
+#             gamma=1.0,
+#             epsilon=0.2,
+#             verbose=True
+#             )
+model = SVR(kernel='poly',
             C=1.0,
-            gamma=1.0,
+            degree= 5,
             epsilon=0.2,
             verbose=True
             )
-model.fit(X=train_data_x, y=train_y_op)
+
+
+model.fit( X = train_data_x, y = train_y_op)
 pred_res = model.predict(test_data_x)
 mse = sklearn.metrics.mean_squared_error(pred_res,test_y_op)
 y_scaler_obj = scaler_array[-1]
+print mse
 
-unscaled_pred_result = [ z for z in y_scaler_obj.inverse_transform(pred_res)]
-unscaled_y = [ z for z in y_scaler_obj.inverse_transform(test_y_op) ]
-mse = sklearn.metrics.mean_squared_error(unscaled_pred_result , unscaled_y)
+# unscaled_pred_result = [ z for z in y_scaler_obj.inverse_transform(pred_res)]
+# unscaled_y = [ z for z in y_scaler_obj.inverse_transform(test_y_op) ]
+# mse = sklearn.metrics.mean_squared_error(pred_res , test_y_op)
+# print mse
 
-print len(unscaled_y)
+print len(pred_res)
 
-# plot the graph!
-disp_x = range(len(unscaled_y))
-plt.plot(disp_x,unscaled_y,'r-')
-plt.plot(disp_x,unscaled_pred_result,'b-')
-plt.show()
+# # plot the graph!
+# disp_x = range(len(unscaled_y))
+# plt.plot(disp_x,unscaled_y,'r-')
+# plt.plot(disp_x,unscaled_pred_result,'b-')
+# plt.show()
 
 print 'Mean Square Error ', mse
 
