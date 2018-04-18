@@ -87,7 +87,6 @@ class encoder_decoder_model:
         lstm_inp_dim = current_op.shape[-1]
 
         for l in range(num_decoder_layers):
-
             if l == 0:
                 inp = current_op
 
@@ -124,9 +123,6 @@ class encoder_decoder_model:
         return
 
     def format_data_xy(self, X, Y):
-
-        # X = X[-num_samples_x1: , :]
-        # x1 = np.reshape(X,[-1,self.lstm_time_steps,self.exg_dimension])
 
         x_end_windowed = get_windowed_data(Y, self.end_window_size + 1)
         x2 = x_end_windowed[:, 0: self.end_window_size]
