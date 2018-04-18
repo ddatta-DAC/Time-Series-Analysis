@@ -4,7 +4,10 @@ from __future__ import print_function
 
 # We disable pylint because we need python3 compatibility.
 from six.moves import xrange  # pylint: disable=redefined-builtin
-from tensorflow.contrib.rnn.python.ops import core_rnn_cell_impl
+
+# from tensorflow.contrib.rnn.python.ops import core_rnn_cell_impl
+from tensorflow.python.ops import rnn_cell_impl
+
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
@@ -12,9 +15,14 @@ from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import nn_ops
 from tensorflow.python.ops import variable_scope
 from tensorflow.python.util import nest
+import tensorflow as tf
 
 # TODO(ebrevdo): Remove once _linear is fully deprecated.
-linear = core_rnn_cell_impl._linear  # pylint: disable=protected-access
+
+# && commensting out linear
+# linear = core_rnn_cell_impl._linear  # pylint: disable=protected-access
+
+
 
 def attention_encoder(encoder_inputs, attention_states, cell,
                       output_size=None, num_heads=1,
@@ -90,10 +98,21 @@ def attention_encoder(encoder_inputs, attention_states, cell,
                     if ndims:
                         assert ndims == 2
                 query = array_ops.concat(query_list,1)
+
             for a in xrange(num_heads):
                 with variable_scope.variable_scope("AttentionEncoder_%d" % a):
                     # y with the shape (batch_size, attention_vec_size)
-                    y = linear(query, attention_vec_size, True)
+
+                    # && Commenting out the linear function
+                    # y = linear(query, attention_vec_size, True)
+
+                    # REPLACEMENT FOR linear
+                    y = tf.contrib.layers.fully_connected(
+                            inputs = query,
+                            num_outputs =  attention_vec_size,
+                            activation_fn=None
+                    )
+
                     # y with the shape (batch_size, 1, 1, attention_vec_size)
                     y = array_ops.reshape(y, [-1, 1, 1, attention_vec_size])
                     # Attention mask is a softmax of v^T * tanh(...).

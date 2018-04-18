@@ -9,6 +9,14 @@ def plot(x,y):
     plt.plot(x, y, 'r-.')
     plt.show()
 
+def plot2(x,y, xlabel , ylabel , title):
+    # plt.xticks(range(min(x), max(x) + 1, 1000))
+    plt.plot(x, y, 'r-.')
+    plt.xlabel(xlabel, fontsize = 22)
+    plt.ylabel(ylabel, fontsize = 22)
+    plt.title(title , fontsize = 22)
+    plt.show()
+
 
 def get_windowed_data(data, window_size):
     print ' window_size' , window_size

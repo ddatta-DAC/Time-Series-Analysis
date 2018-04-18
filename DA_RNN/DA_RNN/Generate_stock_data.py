@@ -1,10 +1,27 @@
 import numpy as np
 import random
 import pandas as pd
+from sklearn import preprocessing
+
+def normalize (df):
+
+    cols = list(df.columns)
+    for c in cols:
+        x = df[c]
+        scaler = preprocessing.StandardScaler().fit(x.values.reshape(-1, 1))
+        x = scaler.transform(x.values.reshape(-1, 1))
+        df[c] = x
+
+    return df
+
+
+
 class Input_data:
     def __init__(self, batch_size, n_step_encoder, n_step_decoder, n_hidden_encoder):                                   
         # read the data 
         data = pd.read_csv('./nasdaq100_padding.csv')
+        data = normalize(data)
+
         self.data = np.array(data)
         self.train_day = 90
         self.val_day = 7
