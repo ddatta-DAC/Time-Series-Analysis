@@ -11,8 +11,9 @@
   - [ z[t-w2), z(t-w2+1), ... z(t-1)]
 
 '''
-
+#
 import data_feeder_2 as data_feeder
+
 import tensorflow as tf
 import numpy as np
 import sklearn
@@ -24,8 +25,7 @@ import os
 # -- Common hyperparams -- #
 
 window_size = 32
-ae_max_epochs = 10
-
+ae_max_epochs = 250
 # ------------------------------------------------------------ #
 # design the autoencoder #
 
@@ -33,7 +33,7 @@ class ae:
 
     def __init__(self):
         self.set_hyperparams()
-        self.max_epochs = ae_max_epochs
+
         return
 
     def layerwise_train(self):
@@ -52,6 +52,8 @@ class ae:
         self.sess.run(init)
 
     def set_hyperparams(self):
+        global ae_max_epochs
+        self.max_epochs = ae_max_epochs
         self.inp_dim = 5
         self.batch_size = 64
         self.layer_dims = [8, 4]
@@ -128,7 +130,12 @@ class ae:
         for ep in range(self.max_epochs):
             batched_data = self.create_batches()
             for d in batched_data:
-                l, _ = self.sess.run([self.loss, self.t], feed_dict={self.x: d})
+                l, _ = self.sess.run([self.loss,
+                                      self.t],
+                                     feed_dict={
+                                         self.x: d
+                                     }
+                        )
                 print 'Loss in training ', l
 
     def reduce(self, data):
@@ -145,9 +152,8 @@ def pretrain_ae(X_train):
     print ae_op.shape
     return ae_obj, ae_op
 
+
 # --------------------------------------------------------------------------------------- #
-
-
 
 
 # ----------------- #
@@ -155,7 +161,7 @@ def pretrain_ae(X_train):
 # ----------------- #
 
 
-def get_windowed_y( data , window_size):
+def get_windowed_y(data, window_size):
     y = list(np.reshape(data, [data.shape[0]]))
     print len(y)
 
@@ -169,57 +175,67 @@ def get_windowed_y( data , window_size):
 
     inp = []
     op = []
-    for w in window(y, window_size+1):
+    for w in window(y, window_size + 1):
         inp.append(w[:-1])
         op.append(w[-1])
 
     inp = np.asarray(inp)
-    op = np.reshape(np.asarray(op),[-1,1])
+    op = np.reshape(np.asarray(op), [-1, 1])
     print inp.shape
     print op.shape
     return inp, op
 
 
 def get_train_data():
-    X_train, X_test, Y_train, Y_test, _ = data_feeder.get_data(True)
+    global ae_obj
+    global window_size
+
+    X_train, _, Y_train, _, _ = data_feeder.get_data(True)
+
     # set up train data
     ae_obj, X_train_ae = pretrain_ae(X_train)
-    train_y_inp, train_y_op = get_windowed_y (Y_train, window_size = window_size)
-    train_exog_inp = X_train_ae[window_size:,:]
+    train_y_inp, train_y_op = get_windowed_y(Y_train, window_size=window_size)
+    train_exog_inp = X_train_ae[window_size:, :]
     print ' train_exog_inp ', train_exog_inp.shape
     # concatenate train_exog_inp and train_y_op
-    train_data_x = np.concatenate([train_y_inp,train_exog_inp],axis = 1)
+    train_data_x = np.concatenate([train_y_inp, train_exog_inp], axis=1)
     print 'train_data_x', train_data_x.shape
     print 'Train Data'
     print 'Train_data_x ', train_data_x.shape
     print 'train_data_x', train_y_op.shape
+    return train_data_x, train_y_op
 
+def get_test_data():
+    global ae_obj
+    global window_size
+
+    _, X_test, _, Y_test, _ = data_feeder.get_data(True)
     # set up test data the model
-
-    test_y_inp,test_y_op = get_windowed_y(Y_test,window_size = window_size)
+    test_y_inp, test_y_op = get_windowed_y(Y_test, window_size=window_size)
     X_test_ae = ae_obj.reduce(X_test)
-    test_exog_inp = X_test_ae[window_size:,:]
+    test_exog_inp = X_test_ae[window_size:, :]
     # concatenate train_exog_inp and train_y_op
-    test_data_x = np.concatenate([test_y_inp,test_exog_inp],axis = 1)
+    test_data_x = np.concatenate([test_y_inp, test_exog_inp], axis=1)
     print 'Test Data'
     print test_data_x.shape
     print test_y_op.shape
+    return test_data_x, test_y_op
 
-def get_svr(type = 'poly'):
 
-    if type =='poly':
+def get_svr(type='poly'):
+    if type == 'poly':
         model = SVR(kernel='poly',
                     C=1.0,
                     degree=5,
-                    epsilon=0.2,
+                    epsilon=0.1,
                     verbose=True
                     )
         return model
-    if type =='rbf':
+    if type == 'rbf':
         model = SVR(kernel='rbf',
                     C=1.0,
                     gamma=1.0,
-                    epsilon=0.2,
+                    epsilon=0.1,
                     verbose=True
                     )
         return model
@@ -227,38 +243,47 @@ def get_svr(type = 'poly'):
 
 def experiment():
     global window_size
-
-    _window_size = [ 32, 64, 128]
+    res_dict = { }
+    _window_size = [8,64,128, 256]
     k_type = ['poly', 'rbf']
     for k in k_type:
-
-
+        res_dict[k] = { }
         for w in _window_size:
+            print '----'
+            print 'SVR', k , 'Window ', w
+
             window_size = w
             model = get_svr(k)
 
+            train_data_x, train_y_op = get_train_data()
+            test_data_x, test_y_op = get_test_data()
+
+
             # Train
-            history = model.fit( X = train_data_x, y = train_y_op)
-            train_loss = history.history['loss']
-            print 'Test Mean Square Error' , train_loss
+            model.fit(X= train_data_x,
+                      y=train_y_op)
+            # train_loss = history.history['loss']
+            # print 'Test Mean Square Error', train_loss
             # Test
+
             pred_res = model.predict(test_data_x)
-            test_mse = sklearn.metrics.mean_squared_error(pred_res,test_y_op)
+            test_mse = sklearn.metrics.mean_squared_error(pred_res, test_y_op)
             print 'Testing Mean Square Error ', test_mse
+            print '----'
+            res_dict[k][w] = test_mse
+
+    print'Results...'
+    print res_dict
 
 
-
-
+experiment()
 
 
 # y_scaler_obj = scaler_array[-1]
-
-
 # unscaled_pred_result = [ z for z in y_scaler_obj.inverse_transform(pred_res)]
 # unscaled_y = [ z for z in y_scaler_obj.inverse_transform(test_y_op) ]
 # mse = sklearn.metrics.mean_squared_error(pred_res , test_y_op)
 # print mse
-
 
 
 # # plot the graph!
@@ -266,9 +291,6 @@ def experiment():
 # plt.plot(disp_x,unscaled_y,'r-')
 # plt.plot(disp_x,unscaled_pred_result,'b-')
 # plt.show()
-
-
-
 
 
 # data_y1 = np.random.randn(1000, 30)

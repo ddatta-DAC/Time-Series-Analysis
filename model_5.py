@@ -171,8 +171,8 @@ model_obj = encoder_decoder_model()
 
 exg_dimension = 81
 end_window_size = 16
-encoder_layer_units = [32 ,16, 16]
-decoder_layer_units = [32, 16]
+encoder_layer_units = [16 , 16]
+decoder_layer_units = [16, 16]
 epochs = 50
 lstm_time_steps = 16
 batch_size = 128
