@@ -12,18 +12,19 @@
 
 '''
 
-import data_feeder
+import data_feeder_2 as data_feeder
 import tensorflow as tf
 import numpy as np
 import sklearn
 from sklearn.svm import SVR
 from itertools import tee, izip
 import matplotlib.pyplot as plt
+import os
 
 # -- Common hyperparams -- #
 
-window_size = 100
-ae_max_epochs = 1000
+window_size = 32
+ae_max_epochs = 10
 
 # ------------------------------------------------------------ #
 # design the autoencoder #
@@ -51,9 +52,9 @@ class ae:
         self.sess.run(init)
 
     def set_hyperparams(self):
-        self.inp_dim = 81
-        self.batch_size = 256
-        self.layer_dims = [64, 32]
+        self.inp_dim = 5
+        self.batch_size = 64
+        self.layer_dims = [8, 4]
         self.num_hidden_layers = len(self.layer_dims)
         self.weights = [None] * self.num_hidden_layers
         self.bias_enc = [None] * self.num_hidden_layers
@@ -136,7 +137,6 @@ class ae:
 
 
 def pretrain_ae(X_train):
-
     data_x = X_train
     ae_obj = ae()
     ae_obj.set_data(data_x)
@@ -147,7 +147,7 @@ def pretrain_ae(X_train):
 
 # --------------------------------------------------------------------------------------- #
 
-X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data(True)
+
 
 
 # ----------------- #
@@ -180,56 +180,86 @@ def get_windowed_y( data , window_size):
     return inp, op
 
 
-# set up train data
-ae_obj, X_train_ae = pretrain_ae(X_train)
-train_y_inp, train_y_op = get_windowed_y (Y_train, window_size = window_size)
-train_exog_inp = X_train_ae[window_size:,:]
-print ' train_exog_inp ', train_exog_inp.shape
-# concatenate train_exog_inp and train_y_op
-train_data_x = np.concatenate([train_y_inp,train_exog_inp],axis = 1)
-print 'train_data_x', train_data_x.shape
-print 'Train Data'
-print 'Train_data_x ', train_data_x.shape
-print 'train_data_x', train_y_op.shape
+def get_train_data():
+    X_train, X_test, Y_train, Y_test, _ = data_feeder.get_data(True)
+    # set up train data
+    ae_obj, X_train_ae = pretrain_ae(X_train)
+    train_y_inp, train_y_op = get_windowed_y (Y_train, window_size = window_size)
+    train_exog_inp = X_train_ae[window_size:,:]
+    print ' train_exog_inp ', train_exog_inp.shape
+    # concatenate train_exog_inp and train_y_op
+    train_data_x = np.concatenate([train_y_inp,train_exog_inp],axis = 1)
+    print 'train_data_x', train_data_x.shape
+    print 'Train Data'
+    print 'Train_data_x ', train_data_x.shape
+    print 'train_data_x', train_y_op.shape
 
-# set up test data the model
+    # set up test data the model
 
-test_y_inp,test_y_op = get_windowed_y(Y_test,window_size = window_size)
-X_test_ae = ae_obj.reduce(X_test)
-test_exog_inp = X_test_ae[window_size:,:]
-# concatenate train_exog_inp and train_y_op
-test_data_x = np.concatenate([test_y_inp,test_exog_inp],axis = 1)
-print 'Test Data'
-print test_data_x.shape
-print test_y_op.shape
+    test_y_inp,test_y_op = get_windowed_y(Y_test,window_size = window_size)
+    X_test_ae = ae_obj.reduce(X_test)
+    test_exog_inp = X_test_ae[window_size:,:]
+    # concatenate train_exog_inp and train_y_op
+    test_data_x = np.concatenate([test_y_inp,test_exog_inp],axis = 1)
+    print 'Test Data'
+    print test_data_x.shape
+    print test_y_op.shape
 
-# initialise the Support Vector Regressor
-# model = SVR(kernel='rbf',
-#             C=1.0,
-#             gamma=1.0,
-#             epsilon=0.2,
-#             verbose=True
-#             )
-model = SVR(kernel='poly',
-            C=1.0,
-            degree= 5,
-            epsilon=0.2,
-            verbose=True
-            )
+def get_svr(type = 'poly'):
+
+    if type =='poly':
+        model = SVR(kernel='poly',
+                    C=1.0,
+                    degree=5,
+                    epsilon=0.2,
+                    verbose=True
+                    )
+        return model
+    if type =='rbf':
+        model = SVR(kernel='rbf',
+                    C=1.0,
+                    gamma=1.0,
+                    epsilon=0.2,
+                    verbose=True
+                    )
+        return model
 
 
-model.fit( X = train_data_x, y = train_y_op)
-pred_res = model.predict(test_data_x)
-mse = sklearn.metrics.mean_squared_error(pred_res,test_y_op)
-y_scaler_obj = scaler_array[-1]
-print mse
+def experiment():
+    global window_size
+
+    _window_size = [ 32, 64, 128]
+    k_type = ['poly', 'rbf']
+    for k in k_type:
+
+
+        for w in _window_size:
+            window_size = w
+            model = get_svr(k)
+
+            # Train
+            history = model.fit( X = train_data_x, y = train_y_op)
+            train_loss = history.history['loss']
+            print 'Test Mean Square Error' , train_loss
+            # Test
+            pred_res = model.predict(test_data_x)
+            test_mse = sklearn.metrics.mean_squared_error(pred_res,test_y_op)
+            print 'Testing Mean Square Error ', test_mse
+
+
+
+
+
+
+# y_scaler_obj = scaler_array[-1]
+
 
 # unscaled_pred_result = [ z for z in y_scaler_obj.inverse_transform(pred_res)]
 # unscaled_y = [ z for z in y_scaler_obj.inverse_transform(test_y_op) ]
 # mse = sklearn.metrics.mean_squared_error(pred_res , test_y_op)
 # print mse
 
-print len(pred_res)
+
 
 # # plot the graph!
 # disp_x = range(len(unscaled_y))
@@ -237,7 +267,7 @@ print len(pred_res)
 # plt.plot(disp_x,unscaled_pred_result,'b-')
 # plt.show()
 
-print 'Mean Square Error ', mse
+
 
 
 
