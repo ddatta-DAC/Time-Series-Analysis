@@ -7,13 +7,7 @@ import itertools
 from itertools import tee, izip
 import math
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from keras.layers import Input, Dense
-from keras.models import Model
-from keras.layers.convolutional import Conv1D
-from keras.layers.pooling import MaxPooling1D
-from keras.layers import Flatten
-from keras.models import load_model
+
 
 # Focussed TDNN
 
@@ -149,7 +143,7 @@ def FTDNN():
     history = model.fit(
         x_train,
         y_train,
-        epochs=2,
+        epochs=epochs,
         batch_size=batch_size
     )
     train_loss = history.history['loss']
