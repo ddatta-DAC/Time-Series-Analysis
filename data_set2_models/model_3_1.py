@@ -424,7 +424,6 @@ def run_all():
             endo_lag = en
             res = experiment()
             res_dict[ex][en] = res
-            exit(1)
 
     print 'Test MSE'
     print res_dict
