@@ -218,6 +218,7 @@ def FTDNN_conv_model(window_size, exog_dim):
 
 
 def ctdnn_get_data_aux(exog, end, window_size):
+
     t_windowed_data_exg = get_windowed_data_ex(exog, window_size + 1)
     t_windowed_data_end = get_windowed_data_en(end, window_size + 1)
 
