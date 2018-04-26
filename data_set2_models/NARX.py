@@ -1,5 +1,8 @@
 # Time Delay Neural Networks
 
+import os
+os.chdir('./..')
+
 import pandas as pd
 import numpy as np
 import sklearn.model_selection
@@ -108,7 +111,10 @@ def FTDNN_model(window_size):
 
 
 def FTDNN():
+
     global target_window
+    batch_size = 256
+
     X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data(True)
 
     # print X_train.shape
@@ -126,6 +132,12 @@ def FTDNN():
     x_train = np.asarray(x_train)
     y_train = np.asarray(y_train)
 
+    x_train = np.asarray(x_train)
+    x_train = np.reshape(x_train, [x_train.shape[0], x_train.shape[1]])
+    y_train = np.asarray(y_train)
+    y_train = np.reshape(y_train, [y_train.shape[0], y_train.shape[1]])
+
+
     print x_train.shape
     print y_train.shape
 
@@ -139,15 +151,22 @@ def FTDNN():
     x_test = np.asarray(x_test)
     y_test = np.asarray(y_test)
 
-    print x_test.shape
+
+
+    x_test = np.asarray(x_test)
+    x_test = np.reshape(x_test,[x_test.shape[0],x_test.shape[1]])
+    y_test = np.asarray(y_test)
+    y_test = np.reshape(y_test, [y_test.shape[0], y_test.shape[1]])
+
+    print x_train.shape
     print y_test.shape
 
     model = FTDNN_model(target_window)
     history = model.fit(
-        x_train,
+        x_test,
         y_train,
-        epochs=400,
-        batch_size=128
+        epochs=2,
+        batch_size=batch_size
     )
     train_loss = history.history['loss']
     print train_loss
@@ -158,7 +177,11 @@ def FTDNN():
     print score
 
 
-# FTDNN()
+FTDNN()
+
+
+exit(1)
+
 
 # ------------------------------ #
 
