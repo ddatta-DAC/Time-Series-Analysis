@@ -85,11 +85,17 @@ def ctdnn_get_data_aux(exog, end, window_size):
 
 
 def conv_aux(window_size, i):
-    exog_inp = Input(shape=[window_size, 1], dtype='float32', name='exg_inp_' + str(i))
-    conv1_op = Conv1D(filters=1, kernel_size=32, activation='relu')(exog_inp)
+    exog_inp = Input(
+        shape=[window_size, 1],
+        dtype='float32',
+        name='exg_inp_' + str(i)
+    )
+    conv1_op = Conv1D(
+        filters=1,
+        kernel_size=32,
+        activation='relu')(exog_inp)
     pool1_op = MaxPooling1D(pool_size=16)(conv1_op)
-    # conv2_op = Conv1D(filters=1, kernel_size=16, activation='relu')(pool1_op)
-    # pool2_op = MaxPooling1D(pool_size=2)(conv2_op)
+
     pool2_op = keras.layers.Flatten()(pool1_op)
     output = Dense(1, activation='tanh')(pool2_op)
     return exog_inp, output
