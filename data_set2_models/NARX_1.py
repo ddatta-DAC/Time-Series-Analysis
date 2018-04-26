@@ -146,7 +146,7 @@ def FTDNN():
         epochs=epochs,
         batch_size=batch_size
     )
-    train_loss = history.history['loss']
+    train_loss = history.history['loss'][-1]
     score = model.evaluate(
         x_test,
         y_test,
@@ -155,6 +155,7 @@ def FTDNN():
 
     return train_loss, score
 
+import pprint
 
 def experiment():
     global target_window
@@ -167,7 +168,8 @@ def experiment():
 
 
     print ' Time Window : Loss, Score'
-    print res_dict
+    pprint.pprint( res_dict )
+
     return
 
 
