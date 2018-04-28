@@ -6,7 +6,8 @@ import data_feeder_2 as data_feeder
 import utils
 import math
 
-
+# --------------------------- #
+# CNN with both exogenous and endogenous data
 # --------------------------- #
 
 def get_data(time_window, type ):
@@ -15,9 +16,12 @@ def get_data(time_window, type ):
     X_train, X_test, Y_train, Y_test, _ = data_feeder.get_data(std=True)
 
     if type == 'test':
+        ex_x = X_test
         y = Y_test
     else :
+        ex_x = X_train
         y = Y_train
+
 
     y = np.asanyarray(y)
     y = np.reshape(y, [-1, 1])
@@ -63,7 +67,7 @@ class model:
         self.train_y = train_y
         return
 
-    def res_block(self, inp, num_filters, dilation, kernel_size):
+    def block(self, inp, num_filters, dilation, kernel_size):
         # down-sampling is performed with a stride of 2
         conv_layer_op = layers.Conv1D(
             filters=num_filters,
@@ -77,11 +81,6 @@ class model:
 
         res = layers.BatchNormalization()(conv_layer_op)
         res = layers.LeakyReLU()(res)
-        # print '---'
-        # print ' inp shape :', inp.shape
-        # print ' res shape :', res.shape
-        # print '---'
-        # res = layers.add([res, inp])
         return res
 
     def build(self):
@@ -92,10 +91,8 @@ class model:
         network_op = None
 
         for l in range(self.num_layers):
-            # print '---'
             d = math.pow(2, l)
-            # print 'layer', l, 'dialtion rate :', d
-            network_op = self.res_block(
+            network_op = self.block(
                 inp=inp,
                 num_filters = 4,
                 dilation=[d],

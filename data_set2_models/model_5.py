@@ -187,9 +187,6 @@ class encoder_decoder_model:
 
 
 
-
-
-
 def experiment():
     exg_dimension = 5
     end_window_size = 16
