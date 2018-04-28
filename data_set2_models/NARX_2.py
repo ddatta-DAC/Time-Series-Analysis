@@ -193,7 +193,7 @@ def experiment():
     # Vary window sizes !
     res_dict = {}
 
-    for w in [32, 64, 128, 512]:
+    for w in [ 64, 128, 512 , 1024 ]:
         window_size = w
         ctdnn_get_data(window_size)
         train_loss, test_mse =  FTDNN_conv()

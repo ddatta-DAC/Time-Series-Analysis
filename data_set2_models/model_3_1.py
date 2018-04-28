@@ -1,18 +1,23 @@
-import keras
 import os
+
+import keras
 import numpy as np
 from keras.layers import Dense
-import data_feeder_2 as data_feeder
+
+os.chdir('./..')
+import data_feeder
+
+# import data_feeder_2 as data_feeder
 from keras.models import load_model
 from itertools import tee, izip
-import utils
 
-ae_1_epoch = 500
-ae_2_epoch = 500
-lstm_epochs = 500
+ae_1_epoch = 200
+ae_2_epoch = 200
+lstm_epochs = 300
 lstm_time_steps = 16
 ae_1_units = [64, 32, 16]
 ae_2_units = [64, 32, 16]
+
 lstm_units = [32, 16]
 lstm_batch_size = 128
 
@@ -273,9 +278,7 @@ class lstm_model:
             return
 
         self.error_keys = {
-            'mse': 'mean_squared_error',
-            'mae': 'mean_absolute_error',
-            'mape': 'mean_absolute_percentage_error'
+            'mse': 'mean_squared_error'
         }
 
         batch_size = self.batch_size * self.time_step

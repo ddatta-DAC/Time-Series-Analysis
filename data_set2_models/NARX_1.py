@@ -8,7 +8,6 @@ from itertools import tee, izip
 import math
 import matplotlib.pyplot as plt
 
-
 # Focussed TDNN
 
 target_window = 512
@@ -155,7 +154,9 @@ def FTDNN():
 
     return train_loss, score
 
+
 import pprint
+
 
 def experiment():
     global target_window
@@ -166,9 +167,8 @@ def experiment():
         r = FTDNN()
         res_dict[_t] = r
 
-
     print ' Time Window : Loss, Score'
-    pprint.pprint( res_dict )
+    pprint.pprint(res_dict)
 
     return
 
