@@ -16,21 +16,24 @@ def get_data(time_window, type ):
     X_train, X_test, Y_train, Y_test, _ = data_feeder.get_data(std=True)
 
     if type == 'test':
-        ex_x = X_test
-        y = Y_test
+        exg_x = X_test
+        end_x = Y_test
     else :
-        ex_x = X_train
-        y = Y_train
+        exg_x = X_train
+        end_x = Y_train
 
+    exg_x = utils.get_windowed_data(exg_x, time_window)
 
-    y = np.asanyarray(y)
+    # ! TODO reshape this !!!
+
+    y = np.asanyarray(end_x)
     y = np.reshape(y, [-1, 1])
     res = utils.get_windowed_data(y, time_window + 1)
-    x = res[:, 0:time_window]
+    end_x = res[:, 0:time_window]
     y = res[:, -1:]
-    x = np.reshape(x, [x.shape[0], time_window, 1])
+    end_x = np.reshape(end_x, [end_x.shape[0], time_window, 1])
     y = np.reshape(y, [y.shape[0], 1])
-    return x, y
+    return exg_x, end_x, y
 
 
 
@@ -54,11 +57,12 @@ class model:
     def set_file_name(self):
         self.save_file = 'model_4' + str(self.time_window) + '.h5'
 
-    def set_hyperparameters(self, batch_size, epochs, time_window, num_layers):
+    def set_hyperparameters(self, batch_size, epochs, time_window, exog_dim, num_layers):
         self.epochs = epochs
         self.batch_size = batch_size
         self.time_window = time_window
         self.num_layers = num_layers
+        self.exog_dim = exog_dim
         self.set_file_name()
         return
 
@@ -86,8 +90,13 @@ class model:
     def build(self):
         # input is an image of time_window x 1
 
-        input_layer = layers.Input(shape=(self.time_window, 1))
-        inp = input_layer
+        # Endogenous data Input
+        input_layer_1 = layers.Input(shape=(self.time_window, 1))
+
+        # Exogenous data Input data input
+        input_layer_2 = layers.Input(shape=(self.time_window, self.exog_dim))
+
+        inp = input_layer_1
         network_op = None
 
         for l in range(self.num_layers):
@@ -101,12 +110,13 @@ class model:
 
             inp = network_op
 
-        network_op = layers.Conv1D(filters=1,
-                                   kernel_size=1,
-                                   dilation_rate=[1],
-                                   strides=1,
-                                   kernel_regularizer=keras.regularizers.l2(0.01),
-                                   padding='valid')(inp)
+        network_op = layers.Conv1D(
+            filters=1,
+            kernel_size=1,
+            dilation_rate=[1],
+            strides=1,
+            kernel_regularizer=keras.regularizers.l2(0.01),
+            padding='valid')(inp)
 
         network_op = layers.Flatten()(network_op)
 
@@ -163,7 +173,7 @@ class model:
 
 # ---------------------- #
 def experiment() :
-    _num_layers = [ 3,4,5,6 ]
+    _num_layers = [ 3 ]
 
     batch_size = 64
     epochs = 150
@@ -174,14 +184,15 @@ def experiment() :
         time_steps = int(math.pow(2, num_layers))
         print 'time_steps ', time_steps
 
-        train_x, train_y = get_training_data(time_steps)
-        test_x, test_y = get_test_data(time_steps)
+        train_x_end, train_x_exg, train_y = get_training_data(time_steps)
+        test_x_end, test_x_exg , test_y = get_test_data(time_steps)
 
         model_obj = model()
         model_obj.set_hyperparameters(
             epochs = epochs,
             batch_size = batch_size,
             time_window = time_steps,
+            exog_dim = exog_dim,
             num_layers = num_layers
         )
 
