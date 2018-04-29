@@ -102,6 +102,7 @@ def conv_aux(window_size, i):
 
 
 def FTDNN_conv_model(window_size, exog_dim):
+
     global dense_layer_units
 
     dense_layer_units = [16, 8]

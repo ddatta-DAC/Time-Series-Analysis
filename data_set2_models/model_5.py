@@ -224,7 +224,7 @@ def experiment():
                 res_dict[t][str(enc)][str(dec)] = [train_mse, test_mse]
 
     print ("Results")
-    print ' End window, enccoder, decoder '
+    print ' End window, encoder, decoder '
     pprint.pprint(res_dict)
 
 
