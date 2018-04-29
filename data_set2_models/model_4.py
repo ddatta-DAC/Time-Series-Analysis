@@ -2,11 +2,15 @@ import keras.layers as layers
 import keras.models as models
 import keras
 import numpy as np
-import data_feeder_2 as data_feeder
 import utils
 import math
+import os
+import sys
+import data_feeder_2 as data_feeder
 
 
+X_train, X_test, Y_train, Y_test, _ = data_feeder.get_data(std=True)
+exit(1)
 # --------------------------- #
 
 def get_data(time_window, type ):
