@@ -18,6 +18,22 @@ def plot2(x,y, xlabel , ylabel , title):
     plt.show()
 
 
+def get_windowed_data_md(data, window_size):
+
+    dim = data.shape[-1]
+    res = []
+
+    for k in range(dim):
+         tmp = data[:,k]
+         tmp = get_windowed_data(tmp, window_size)
+         res.append(tmp)
+    res = np.asarray(res)
+    res = np.transpose(res,[1,2,0])
+    print res.shape
+
+    return res
+
+
 def get_windowed_data(data, window_size):
     print 'In utils.get_windowed_data,  window_size' , window_size
 
