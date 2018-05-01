@@ -12,17 +12,17 @@ import matplotlib.pyplot as plt
 
 target_window = 512
 exog_dim = 5
+epochs = 400
 
-
-def _plot(x, y, title):
-    plt.figure()
-    plt.title(title, fontsize=20)
-    plt.ylabel('Mean Square Error', fontsize=20)
-    plt.plot(x, y, 'r-')
-    plt.xlabel('Epochs', fontsize=20)
-    plt.yticks(np.arange(0, 2.2, 0.2))
-    plt.show()
-    return
+# def _plot(x, y, title):
+#     plt.figure()
+#     plt.title(title, fontsize=20)
+#     plt.ylabel('Mean Square Error', fontsize=20)
+#     plt.plot(x, y, 'r-')
+#     plt.xlabel('Epochs', fontsize=20)
+#     plt.yticks(np.arange(0, 2.2, 0.2))
+#     plt.show()
+#     return
 
 
 def get_windowed_data_en(data, window_size):
@@ -104,12 +104,13 @@ def FTDNN_model(window_size):
 def FTDNN():
     global target_window
     batch_size = 128
-    epochs = 400
+    global epochs
 
-    X_train, X_test, Y_train, Y_test, _ = data_feeder.get_data(True)
+    X_train, X_val, X_test, Y_train, Y_val, Y_test, _ = data_feeder.get_data_val(True)
 
     train_windowed_data = get_windowed_data_ex(Y_train, target_window + 1)
     test_windowed_data = get_windowed_data_ex(Y_test, target_window + 1)
+    val_windowed_data = get_windowed_data_ex(Y_val, target_window + 1)
 
     # Set up training input and output
     x_train = []
@@ -125,6 +126,19 @@ def FTDNN():
     x_train = np.reshape(x_train, [x_train.shape[0], x_train.shape[1]])
     y_train = np.asarray(y_train)
     y_train = np.reshape(y_train, [y_train.shape[0], y_train.shape[1]])
+
+    x_val = []
+    y_val = []
+
+    for i in range(val_windowed_data.shape[0]):
+        x_val.append(val_windowed_data[i, 0:target_window])
+        y_val.append(val_windowed_data[i, -1:])
+
+    x_val = np.asarray(x_val)
+    x_val = np.reshape(x_val, [x_val.shape[0], x_val.shape[1]])
+    y_val = np.asarray(y_val)
+    y_val = np.reshape(y_val, [y_val.shape[0], y_val.shape[1]])
+
 
     x_test = []
     y_test = []
@@ -145,32 +159,55 @@ def FTDNN():
         epochs=epochs,
         batch_size=batch_size
     )
-    train_loss = history.history['loss'][-1]
-    score = model.evaluate(
+    train_loss = np.mean(history.history['loss'])
+
+    val_mse = model.evaluate(
+        x_val,
+        y_val,
+        batch_size=1
+    )
+
+    test_mse = model.evaluate(
         x_test,
         y_test,
         batch_size=1
     )
 
-    return train_loss, score
+    return train_loss, val_mse, test_mse
 
-
-import pprint
 
 
 def experiment():
     global target_window
-    res_dict = {}
-    t = [32, 128, 256, 512, 1024]
-    for _t in t:
-        target_window = _t
-        r = FTDNN()
-        res_dict[_t] = r
+    columns = ['Window Length',
+               'Train Error',
+               'Validation Error',
+               'Test Error'
+               ]
+    df = pd.DataFrame(columns=columns)
 
-    print ' Time Window : Loss, Score'
-    pprint.pprint(res_dict)
 
+
+    _window_length = [32, 64 ,128, 256, 512, 1024]
+    for w in _window_length:
+        res_dict = {}
+
+        target_window = w
+        train_loss, val_mse ,test_mse = FTDNN()
+
+        res_dict[columns[0]] = w
+        res_dict[columns[1]] = train_loss
+        res_dict[columns[2]] = val_mse
+        res_dict[columns[3]] = test_mse
+        df = df.append(res_dict, ignore_index=True)
+
+    df.to_csv('narx_1_op.csv')
     return
 
 
 experiment()
+
+
+
+
+
