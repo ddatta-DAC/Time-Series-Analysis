@@ -9,6 +9,7 @@ import os
 from keras.models import load_model
 import pprint
 
+
 def get_windowed_data(data, window_size):
     # local function
 
@@ -168,16 +169,24 @@ class encoder_decoder_model:
 
     def train_model(self):
 
-        exog_train, _, end_train, _, _ = data_feeder.get_data(True)
+        exog_train, _, _, end_train, _, _ , _ = data_feeder.get_data_val(True)
         x1, x2, y = self.format_data_xy(exog_train, end_train)
         hist = self.model.fit([x1,x2],y,epochs=self.epochs)
         trian_loss = hist.history['loss']
-        # self.model.save(self.model_file)
         return np.mean(trian_loss)
 
 
+    def val_model(self):
+        _, exog_val, _,  _, end_val, _, _ = data_feeder.get_data_val(True)
+        x1, x2, y = self.format_data_xy(exog_val, end_val)
+        score = self.model.evaluate([x1,x2],y)
+        val_mse = score[0]
+        return val_mse
+
+
     def test_model(self):
-        _, exog_test,  _, end_test, _ = data_feeder.get_data(True)
+
+        _, _, exog_test, _, _, end_test, _ = data_feeder.get_data_val(True)
         x1, x2, y = self.format_data_xy(exog_test, end_test)
         score = self.model.evaluate([x1,x2],y)
         test_mse = score[0]
@@ -185,28 +194,39 @@ class encoder_decoder_model:
 
 # ------------------------------- #
 
-
+import pandas as pd
 
 def experiment():
+
     exg_dimension = 5
     end_window_size = 16
     encoder_layer_units = [16, 8]
     decoder_layer_units = [16, 8]
-    epochs = 300
+    epochs = 350
     lstm_time_steps = 16
     batch_size = 128
 
     _enc_units = [[16, 8], [16, 16], [32, 16]]
     _dec_units = [[16, 8], [16, 16], [32, 16]]
-    ts = [16,32,64]
-    res_dict = {}
-    for t in ts :
-        res_dict[t] = {}
-        end_window_size = t
-        for enc in _enc_units :
-            res_dict[t][str(enc)] = {}
-            for dec in _dec_units :
+    ts = [16, 32, 64]
+    columns = ['End Window Size',
+               'Encoder Layer 1 Units',
+               'Encoder Layer 2 Units',
+               'Decoder Layer 1 Units',
+               'Decoder Layer 2 Units',
+               'Train Error',
+               'Validation Error',
+               'Test Error'
+               ]
+    df = pd.DataFrame(columns=columns)
 
+    for t in ts :
+
+        end_window_size = t
+
+        for enc in _enc_units :
+            for dec in _dec_units :
+                res_dict = {}
                 model_obj = encoder_decoder_model()
                 model_obj.set_hyperparams(
                     exg_dimension,
@@ -220,12 +240,20 @@ def experiment():
 
                 model_obj.build_model()
                 train_mse = model_obj.train_model()
+                val_mse = model_obj.val_model()
                 test_mse = model_obj.test_model()
-                res_dict[t][str(enc)][str(dec)] = [train_mse, test_mse]
 
-    print ("Results")
-    print ' End window, encoder, decoder '
-    pprint.pprint(res_dict)
+                res_dict[columns[0]] = t
 
+                res_dict[columns[1]] = enc[0]
+                res_dict[columns[2]] = enc[1]
+                res_dict[columns[3]] = dec[0]
+                res_dict[columns[4]] = dec[1]
+
+                res_dict[columns[5]] = train_mse
+                res_dict[columns[6]] = val_mse
+                res_dict[columns[7]] = test_mse
+
+    df.to_csv('model_5_op.csv')
 
 experiment()
