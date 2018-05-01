@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import sklearn.model_selection
 import keras
-import data_feeder_2 as data_feeder
+import data_feeder
 import itertools
 from itertools import tee, izip
 import math
@@ -16,7 +16,7 @@ from keras.layers import Flatten
 from keras.models import load_model
 
 window_size = 64
-exog_dim = 5
+exog_dim = 81
 batch_size = 128
 epochs = 325
 
