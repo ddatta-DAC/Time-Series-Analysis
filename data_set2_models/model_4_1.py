@@ -26,7 +26,7 @@ def get_data(time_window, type):
 
     # Reshape exg_shape to have same number of channels as exogenous dimensions
     dim = exg_x.shape[-1]
-    exg_x = np.reshape(exg_x, [exg_x.shape[0], time_window, 1, dim])
+    exg_x = np.reshape(exg_x, [exg_x.shape[0], time_window, dim])
     # print 'exg_x shape', exg_x.shape
     y = np.asanyarray(end_x)
     y = np.reshape(y, [-1, 1])
@@ -37,6 +37,10 @@ def get_data(time_window, type):
     # print 'end_x shape', end_x.shape
 
     y = np.reshape(y, [y.shape[0], 1])
+
+    num_samples = y.shape[0]
+    exg_x = exg_x[0:num_samples]
+    print exg_x.shape, end_x.shape, y.shape
     return exg_x, end_x, y
 
 
@@ -70,9 +74,11 @@ class model:
         self.set_file_name()
         return
 
-    def set_train_data(self, train_x=None, train_y=None):
-        self.train_x = train_x
+    def set_train_data(self, train_x_end, train_x_exg, train_y):
+        self.train_x_end = train_x_end
+        self.train_x_exg = train_x_exg
         self.train_y = train_y
+
         return
 
     def block(self, inp, num_filters, dilation, kernel_size):
@@ -81,6 +87,7 @@ class model:
             filters=num_filters,
             kernel_size=kernel_size,
             dilation_rate=dilation,
+            activation = 'relu',
             strides=1,
             kernel_regularizer=keras.regularizers.l2(0.01),
             padding='valid'
@@ -91,17 +98,19 @@ class model:
         return res
 
     def build(self):
-        # input is an image of time_window x 1
-
-        # Endogenous data Input
+        # Exogenous data Input data input
         input_layer_1 = layers.Input(
+            shape=(self.time_window, self.exog_dim)
+        )
+
+
+        # input is an image of time_window x 1
+        # Endogenous data Input
+        input_layer_2 = layers.Input(
             shape=(self.time_window, 1)
         )
 
-        # Exogenous data Input data input
-        input_layer_2 = layers.Input(
-            shape=(self.time_window, self.exog_dim)
-        )
+
 
         exg_conv_layer_op_1 = layers.Conv1D(
             filters = 16,
@@ -110,9 +119,11 @@ class model:
             strides=1,
             kernel_regularizer=keras.regularizers.l2(0.01),
             padding='valid'
-        )(input_layer_2)
+        )(input_layer_1)
 
         print exg_conv_layer_op_1
+        exg_conv_layer_op_1 = layers.BatchNormalization()(exg_conv_layer_op_1)
+        exg_conv_layer_op_1 = layers.LeakyReLU()(exg_conv_layer_op_1)
 
         end_conv_layer_op_1 = layers.Conv1D(
             filters=4,
@@ -121,21 +132,20 @@ class model:
             strides=1,
             kernel_regularizer=keras.regularizers.l2(0.01),
             padding='valid'
-        )(input_layer_1)
+        )(input_layer_2)
 
         print end_conv_layer_op_1
 
-        added = keras.layers.concatenate([end_conv_layer_op_1,exg_conv_layer_op_1],axis = -1)
-        print added
+        concat_op  = layers.Concatenate(axis=-1)([end_conv_layer_op_1,exg_conv_layer_op_1])
+        print 'Added ', concat_op
 
-
-        z = keras.activations.relu(added)
-        print z
+        concat_op = layers.LeakyReLU()(concat_op)
+        print concat_op
         # ---- #
         # inp = input_layer_1
         network_op = None
 
-        inp = z
+        inp = concat_op
 
         for l in range(1,self.num_layers):
             d = math.pow(2, l)
@@ -157,8 +167,8 @@ class model:
             padding='valid')(inp)
 
         print 'OP', network_op
-        # network_op = layers.Flatten()(network_op)
-        # print 'OP' ,network_op
+        network_op = layers.Flatten()(network_op)
+        print 'OP' ,network_op
 
 
         model = models.Model(
@@ -166,7 +176,6 @@ class model:
             outputs=[network_op]
         )
 
-        exit(1)
         model.compile(
             optimizer=keras.optimizers.Adam(),
             loss=keras.losses.MSE,
@@ -183,29 +192,25 @@ class model:
         }
 
         train_loss = []
-        for _ in range(self.epochs):
-            _x = self.train_x
-            _y = self.train_y
-            bs = self.batch_size
+        hist = self.model.fit(
+            [self.train_x_exg, self.train_x_end],
+            [self.train_y],
+            epochs=self.epochs,
+            batch_size=self.batch_size,
+            shuffle=False,
+            verbose=False
+        )
 
-            hist = self.model.fit(
-                _x,
-                _y,
-                epochs=5,
-                batch_size=bs,
-                shuffle=False,
-                verbose=False
-            )
 
-            train_loss.extend(hist.history['loss'])
+        train_loss.extend(hist.history['loss'])
         print 'Train Loss', train_loss
         return np.mean(train_loss)
 
-    def test_model(self, test_x, test_y):
+    def test_model(self, test_x_end, test_x_exg, test_y):
 
         score = self.model.evaluate(
-            test_x,
-            test_y,
+            [test_x_end, test_x_exg],
+            [test_y],
             batch_size=1
         )
         print 'Test Score', np.mean(score)
@@ -214,18 +219,18 @@ class model:
 
 # ---------------------- #
 def experiment():
-    _num_layers = [4]
+    _num_layers = [3,5,6]
 
     batch_size = 64
-    epochs = 150
+    epochs = 250
     res_dict = {}
 
     for num_layers in _num_layers:
         time_steps = int(math.pow(2, num_layers))
         print 'time_steps ', time_steps
 
-        train_x_end, train_x_exg, train_y = get_training_data(time_steps)
-        test_x_end, test_x_exg, test_y = get_test_data(time_steps)
+        train_x_exg, train_x_end, train_y = get_training_data(time_steps)
+        test_x_exg, test_x_end, test_y = get_test_data(time_steps)
         exog_dim = 5
         model_obj = model()
         model_obj.set_hyperparameters(
@@ -235,16 +240,15 @@ def experiment():
             exog_dim=exog_dim,
             num_layers=num_layers
         )
-
         model_obj.build()
-        # model_obj.set_train_data(
-        #     train_x,
-        #     train_y
-        # )
-        # train_mse = model_obj.train_model()
-        # test_mse = model_obj.test_model(test_x, test_y)
 
-        # res_dict[num_layers] = [time_steps, train_mse, test_mse]
+        model_obj.set_train_data(
+            train_x_end, train_x_exg, train_y
+        )
+        train_mse = model_obj.train_model()
+        test_mse = model_obj.test_model( test_x_exg, test_x_end, test_y)
+
+        res_dict[num_layers] = [time_steps, train_mse, test_mse]
 
     print '----'
     print ' Num Layers :  time_steps , train mse, test mse '

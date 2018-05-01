@@ -2,6 +2,7 @@ import numpy as np
 from keras.models import load_model
 from keras.layers import Dense
 import h5py
+import pandas as pd
 import keras
 import data_feeder_2 as data_feeder
 from itertools import tee, izip
@@ -10,24 +11,26 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import os
 
-
+ae_epochs = 250
 lstm_time_step = 8
 batch_size = 32
-epochs = 400
+lstm_epochs = 250
 window_size = 8
 
 def get_stacked_ae():
 
+    global ae_epochs
+    global batch_size
     if os.path.exists('ae_model.h5'):
         return
 
-    nb_epoch = 500
-    batch_size = 256
+    nb_epoch = ae_epochs
+    batch_size = batch_size
     X_train, _, _, _, _ = data_feeder.get_data(True)
-    print X_train.shape
 
-    num_layers = 2
-    shape = [ 8, 4 ]
+
+    num_layers = 3
+    shape = [ 64, 32, 16 ]
     inp_dim = X_train.shape[-1]
 
     model = keras.models.Sequential()
@@ -49,7 +52,6 @@ def get_stacked_ae():
         layer = Dense(units=inp_dim, activation='tanh')
         model.add(layer)
 
-        print model.summary()
         model.compile(optimizer=keras.optimizers.Adam(),
                       loss=keras.losses.MSE,
                       metrics=['accuracy'])
@@ -64,7 +66,6 @@ def get_stacked_ae():
             layer.trainable = False
 
         model.pop()
-        print model.summary()
     model.save('ae_model.h5')
     return model
 
@@ -97,7 +98,7 @@ def create_complete_model():
 
     global lstm_time_step
     global batch_size
-    global epochs
+    global lstm_epochs
     global window_size
 
     # ------------ #
@@ -180,27 +181,33 @@ def create_complete_model():
     history = model.fit(
         inp,
         op,
-        epochs=epochs,
+        epochs=lstm_epochs,
         batch_size=batch_size,
         shuffle=False,
         verbose=False
     )
 
     t_loss = history.history['loss']
-    plt.figure()
-    plt.title('Training Loss', fontsize=20)
-    plt.ylabel('Mean Square Error', fontsize=20)
-    plt.plot(range(len(t_loss)), t_loss, 'r-')
-    plt.xlabel('Epochs', fontsize=20)
-    plt.yticks(np.arange(0, 2.2, 0.2))
-    # plt.show()
+
+    # plt.figure()
+    # plt.title('Training Loss', fontsize=20)
+    # plt.ylabel('Mean Square Error', fontsize=20)
+    # plt.plot(range(len(t_loss)), t_loss, 'r-')
+    # plt.xlabel('Epochs', fontsize=20)
+    # plt.yticks(np.arange(0, 2.2, 0.2))
+    # # plt.show()
     model.save('model_1.h5')
-    return
 
+    return np.mean(t_loss)
 
-    # plot loss !
 
 def test_model():
+    return val_test_model(False)
+
+def validate_model():
+    return val_test_model(True)
+
+def val_test_model(val = False):
 
     # -------- #
 
@@ -214,9 +221,10 @@ def test_model():
     ae_model = load_model('ae_model.h5')
     lstm_model = load_model('model_1.h5')
 
-    # ---------- #
-
-    _, X_test, _, Y_test, _ = data_feeder.get_data(True)
+    if val == True :
+        _, _, X_test, _, _, Y_test, _ = data_feeder.get_data_val(True)
+    else :
+        _, X_test, _, Y_test, _ = data_feeder.get_data(True)
 
     # create windows
     inp, op = get_windowed_inp(Y_test, window_size)
@@ -259,23 +267,39 @@ def test_model():
 
     test_x = inp
     test_y = op
-    score = lstm_model.evaluate(x=test_x, y=test_y, batch_size=batch_size)
+    score = lstm_model.evaluate(x=test_x,
+                                y=test_y,
+                                batch_size=batch_size
+                                )
     print 'Mean Square Error', score[0]
     return score[0]
 
 
-res_dict = {}
+columns = ['Window Length',
+           'Train Error',
+           'Validation Error',
+           'Test Error'
+           ]
+df = pd.DataFrame(columns=columns)
+
+
 for w in [8,16,32,64,128]:
     # delete model
     import os
     if os.path.isfile('model_1.h5'):
         os.remove('model_1.h5')
     window_size = w
+    res_dict = {}
 
     get_stacked_ae()
-    create_complete_model()
-    mse = test_model()
-    res_dict[w] = mse
+    train_loss = create_complete_model()
+    val_mse = validate_model()
+    test_mse = test_model()
+    res_dict[columns[0]] = w
+    res_dict[columns[1]] = train_loss
+    res_dict[columns[2]] = val_mse
+    res_dict[columns[3]] = test_mse
 
-print('Results ')
-print( res_dict )
+
+    df = df.append(res_dict,ignore_index=True)
+df.to_csv('model_1_op.csv')

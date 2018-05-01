@@ -173,7 +173,7 @@ class encoder_decoder_model:
         hist = self.model.fit([x1,x2],y,epochs=self.epochs)
         trian_loss = hist.history['loss']
         # self.model.save(self.model_file)
-        return trian_loss
+        return np.mean(trian_loss)
 
 
     def test_model(self):

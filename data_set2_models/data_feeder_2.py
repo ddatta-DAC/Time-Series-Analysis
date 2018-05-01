@@ -52,4 +52,13 @@ def get_data(std=False):
     return X_train, X_test, Y_train, Y_test, scaler_array
 
 
-get_data(True)
+def get_data_val(std = True):
+
+    X_train, X_test, Y_train, Y_test, scaler_array = get_data(std)
+    #validation set is 5% of total = 33% of 15% of total. 1/3*15/100*x = 5/100 x
+    X_val, X_test, Y_val, Y_test = sklearn.model_selection.train_test_split(
+        X_test, Y_test, test_size = 0.666)
+
+    return X_train, X_val, X_test, Y_train , Y_val, Y_test, scaler_array
+
+
