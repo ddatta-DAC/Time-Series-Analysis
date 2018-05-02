@@ -10,19 +10,20 @@ import data_feeder_2 as data_feeder
 from keras.models import load_model
 from itertools import tee, izip
 
-UseSaved = False
+UseSaved = True
 
-ae_1_epoch = 1
-ae_2_epoch = 1
-lstm_epochs = 1
+ae_1_epoch = 200
+ae_2_epoch = 200
+lstm_epochs = 125
 
 lstm_time_steps = 16
 
 ae_1_units = [8, 4]
 ae_2_units = [64, 32, 16]
+# ae_1_units = [64, 32, 16]
 
 lstm_units = [32, 16]
-lstm_batch_size = 128
+lstm_batch_size = 32
 
 # set up autoencoder with inputs as [ x(t-k)...x(t-1), y(t) ]
 exog_lag = 32
@@ -176,6 +177,7 @@ def get_ae_2():
     ae_obj_1 = get_ae_1()
 
     X_train, _, Y_train, _, _ = data_feeder.get_data(True)
+
     xformed_exog_train = ae_obj_1.model.predict(X_train)
     _x1 = get_windowed_data(data=xformed_exog_train, window_size=exog_lag)
     _y1 = get_windowed_data(data=Y_train, window_size=endo_lag)
@@ -278,6 +280,14 @@ class lstm_model:
         return train_mse
 
     def train_model(self):
+        global endo_lag
+        global exog_lag
+
+        print 'In train ...'
+        print self.time_step
+        print exog_lag
+        print endo_lag
+
 
         if os.path.exists(self.save_file):
             return
@@ -287,24 +297,24 @@ class lstm_model:
         }
 
         batch_size = self.batch_size * self.time_step
-        num_batches = (self.x.shape[0] - 1) // batch_size + 1
-        print batch_size
+        num_batches = self.x.shape[0]  // batch_size
+        num_samples = num_batches * batch_size
+        self.x = self.x [-num_samples:]
+        self.y = self.y[-num_samples:]
 
         self.train_mse = []
-
 
         for _ in range(self.epochs):
 
             for i in range(num_batches):
                 _x = self.x[i * batch_size:(i + 1) * batch_size, :]
                 _y = self.y[i * batch_size:(i + 1) * batch_size, :]
+
                 if _x.shape[0] != batch_size:
-                    _samples = _x.shape[0] - (_x.shape[0] % (self.time_step * _x.shape[-1]))
-                    _x = _x[-_samples:, :]
-                    _y = _y[-_samples:, :]
+                    continue
+
 
                 bs = _x.shape[0] // self.time_step
-
                 _x = np.reshape(_x, [bs, self.time_step, _x.shape[-1]])
                 _y = np.reshape(_y, [bs, self.time_step, _y.shape[-1]])
 
@@ -361,7 +371,7 @@ class lstm_model:
 # [ samples, timesteps , 1]
 
 
-def build_trian_model():
+def build_train_model():
 
     global endo_lag
     global exog_lag
@@ -373,15 +383,20 @@ def build_trian_model():
     ae_1_obj, ae_2_obj = get_ae_2()
     xformed_exog_train = ae_1_obj.model.predict(X_train)
 
+
+
     _x1 = get_windowed_data(data=xformed_exog_train, window_size=exog_lag)
     _x2 = get_windowed_data(data=Y_train, window_size=endo_lag + 1)
     _x2 = _x2[:, 0:endo_lag]
     _y = _x2[:, -1:]
 
+
+
     num_samples = min(_x1.shape[0], _x2.shape[0])
     _x1 = _x1[-num_samples:]
     _x2 = _x2[-num_samples:]
     _y = _y[-num_samples:, :]
+
 
     ae2_inp = np.concatenate([_x1, _x2], axis=-1)
     x = ae_2_obj.model.predict(ae2_inp)
@@ -394,10 +409,10 @@ def build_trian_model():
         epochs=lstm_epochs,
         batch_size=lstm_batch_size
     )
+
     lstm_model_obj.set_train_data(x, _y)
     train_mse = lstm_model_obj.load_model()
     return ae_1_obj, ae_2_obj, lstm_model_obj, train_mse
-
 
 # Test
 # ae_obj_1 = ae_class(1)
@@ -443,7 +458,7 @@ def format_data(ae_1_obj, ae_2_obj, type ='test'):
 
 def experiment():
 
-    ae_1_obj, ae_2_obj, lstm_model_obj , train_mse= build_trian_model()
+    ae_1_obj, ae_2_obj, lstm_model_obj , train_mse = build_train_model()
 
     # # Test
     # _, X_test, _, Y_test, _ = data_feeder.get_data(True)
@@ -490,9 +505,11 @@ def run_all():
         ]
     df = pd.DataFrame(columns=columns)
 
-    for ex in [8, 16, 32, 64 ,128 ,256, 512]:
+    # [8, 16, 32, 64, 128 , 512]
+    # [8, 16, 32, 64 ,128 , 512]
 
-        for en in [8, 16, 32, 64 ,128 ,256, 512] :
+    for ex in [8, 16, 32, 128 ]:
+        for en in [8, 32, 64, 128] :
             res_dict = {}
             exog_lag = ex
             endo_lag = en
