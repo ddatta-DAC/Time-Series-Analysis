@@ -54,7 +54,7 @@ class ae:
     def set_hyperparams(self):
         global ae_max_epochs
         self.max_epochs = ae_max_epochs
-        self.inp_dim = 5
+        self.inp_dim = 81
         self.batch_size = 64
         self.layer_dims = [64, 16]
         self.num_hidden_layers = len(self.layer_dims)
