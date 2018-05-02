@@ -327,7 +327,7 @@ def experiment():
             df = df.append(res_dict, ignore_index=True)
 
 
-    df.to_csv('model_3_1_op.csv')
+    df.to_csv('model_3_op.csv')
 
 
 
