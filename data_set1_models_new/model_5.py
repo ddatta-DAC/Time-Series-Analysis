@@ -253,7 +253,7 @@ def experiment():
                 res_dict[columns[5]] = train_mse
                 res_dict[columns[6]] = val_mse
                 res_dict[columns[7]] = test_mse
-
+                df = df.append(res_dict, ignore_index=True)
     df.to_csv('model_5_op.csv')
 
 experiment()

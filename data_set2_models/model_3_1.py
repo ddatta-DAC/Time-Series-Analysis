@@ -1,21 +1,24 @@
 import os
-
+import pandas as pd
 import keras
 import numpy as np
 from keras.layers import Dense
 
-os.chdir('./..')
-import data_feeder
+import data_feeder_2 as data_feeder
 
 # import data_feeder_2 as data_feeder
 from keras.models import load_model
 from itertools import tee, izip
 
-ae_1_epoch = 200
-ae_2_epoch = 200
-lstm_epochs = 300
+UseSaved = False
+
+ae_1_epoch = 1
+ae_2_epoch = 1
+lstm_epochs = 1
+
 lstm_time_steps = 16
-ae_1_units = [64, 32, 16]
+
+ae_1_units = [8, 4]
 ae_2_units = [64, 32, 16]
 
 lstm_units = [32, 16]
@@ -59,11 +62,13 @@ class ae_class:
         return
 
     def load_model(self):
-        if os.path.exists(self.save_file):
+        global UseSaved
+        if os.path.exists(self.save_file) and UseSaved:
             self.model = load_model(self.save_file)
+            return None
         else:
             return self.build_model()
-        return None
+
 
     def set_hyperparams(self, layer_units, inp_dim, batch_size, epochs):
         self.epoch = epochs
@@ -77,7 +82,7 @@ class ae_class:
         model = keras.models.Sequential()
         for i in range(self.num_layers):
             self.train_losses = []
-            self.train_acc = []
+
 
             if i == 0:
                 op_x = self.X
@@ -121,7 +126,7 @@ class ae_class:
                     hist = model.fit(
                         _x,
                         _y,
-                        epochs=5,
+                        epochs=4,
                         batch_size=bs,
                         shuffle=False,
                         verbose=False
@@ -142,6 +147,7 @@ class ae_class:
 # Get Data
 # ------ #
 def get_ae_1():
+
     X_train, _, Y_train, _, _ = data_feeder.get_data(True)
 
     # set up autoencoder for exogenous values
@@ -221,7 +227,8 @@ class lstm_model:
         return
 
     def load_model(self):
-        if os.path.exists(self.save_file):
+        global UseSaved
+        if os.path.exists(self.save_file) and UseSaved:
             self.model = load_model(self.save_file)
             return None
         else:
@@ -230,8 +237,6 @@ class lstm_model:
     def set_train_data(self, x, y):
         self.x = x
         self.y = y
-        # self.x = np.reshape(self.x, [-1,self.time_step,self.x.shape[-1]])
-        # self.y = np.reshape(self.y, [-1, self.time_step, self.y.shape[-1]])
         self.inp_dimension = self.x.shape[-1]
 
     def build_model(self):
@@ -269,8 +274,8 @@ class lstm_model:
 
         self.model = model
         model.summary()
-        self.train_model()
-        return self.train_losses
+        train_mse = self.train_model()
+        return train_mse
 
     def train_model(self):
 
@@ -283,11 +288,10 @@ class lstm_model:
 
         batch_size = self.batch_size * self.time_step
         num_batches = (self.x.shape[0] - 1) // batch_size + 1
+        print batch_size
 
-        self.train_losses = []
-        self.train_mape = []
         self.train_mse = []
-        self.train_mae = []
+
 
         for _ in range(self.epochs):
 
@@ -313,10 +317,27 @@ class lstm_model:
                     verbose=False
                 )
 
-                self.train_losses.extend(hist.history['loss'])
-                self.train_mse.extend(hist.history[self.error_keys['mse']])
+                self.train_mse.extend(hist.history['loss'])
 
         self.model.save(self.save_file)
+        return np.mean(self.train_mse)
+
+
+    def validate(self, x, y):
+        print 'In validate ...'
+
+        _samples = self.time_step * (x.shape[0] // self.time_step)
+        x = x[-_samples:, :]
+        y = y[-_samples:, :]
+
+        s_n = _samples / self.time_step
+        x = np.reshape(x, [-1, self.time_step, x.shape[-1]])
+        y = np.reshape(y, [s_n, self.time_step, 1])
+
+        result = self.model.evaluate(x, y)
+        print 'Validation Mean Square Error', result
+        return result[0]
+
 
     def test(self, x, y):
         print 'In test ...'
@@ -330,7 +351,7 @@ class lstm_model:
         y = np.reshape(y, [s_n, self.time_step, 1])
 
         result = self.model.evaluate(x, y)
-        print 'Mean Square Error', result
+        print 'Test Mean Square Error', result
         return result[0]
 
 
@@ -374,62 +395,116 @@ def build_trian_model():
         batch_size=lstm_batch_size
     )
     lstm_model_obj.set_train_data(x, _y)
-    lstm_model_obj.load_model()
-    return ae_1_obj, ae_2_obj, lstm_model_obj
+    train_mse = lstm_model_obj.load_model()
+    return ae_1_obj, ae_2_obj, lstm_model_obj, train_mse
 
 
 # Test
 # ae_obj_1 = ae_class(1)
 # ae_obj_2 = ae_class(2)
 
+def format_data(ae_1_obj, ae_2_obj, type ='test'):
+    _, X_val, X_test, _, Y_val, Y_test, _ = data_feeder.get_data_val(True)
 
-def experiment():
+    if type== 'val':
+        X = X_val
+        Y = Y_val
 
-    ae_1_obj, ae_2_obj, lstm_model_obj = build_trian_model()
+    elif type == 'test':
+        X = X_test
+        Y = Y_test
 
     # Test
-    _, X_test, _, Y_test, _ = data_feeder.get_data(True)
-    xformed_exog_test = ae_1_obj.model.predict(X_test)
 
-    _x1 = get_windowed_data (
+    xformed_exog_test = ae_1_obj.model.predict(X)
+
+    _x1 = get_windowed_data(
         data=xformed_exog_test,
         window_size=exog_lag
     )
     _x2 = get_windowed_data(
-        data=Y_test,
+        data=Y,
         window_size=endo_lag + 1
     )
     _x2 = _x2[:, 0:endo_lag]
     _y = _x2[:, -1:]
-    test_y = _y
 
 
     num_samples = min(_x1.shape[0], _x2.shape[0])
     _x1 = _x1[-num_samples:]
     _x2 = _x2[-num_samples:]
-    test_y = test_y[-num_samples:, :]
+    _y = _y[-num_samples:, :]
 
     ae2_inp = np.concatenate([_x1, _x2], axis=-1)
-    test_x = ae_2_obj.model.predict(ae2_inp)
+    _x = ae_2_obj.model.predict(ae2_inp)
+
+    return _x,_y
+
+
+def experiment():
+
+    ae_1_obj, ae_2_obj, lstm_model_obj , train_mse= build_trian_model()
+
+    # # Test
+    # _, X_test, _, Y_test, _ = data_feeder.get_data(True)
+    # xformed_exog_test = ae_1_obj.model.predict(X_test)
+    #
+    # _x1 = get_windowed_data (
+    #     data=xformed_exog_test,
+    #     window_size=exog_lag
+    # )
+    # _x2 = get_windowed_data(
+    #     data=Y_test,
+    #     window_size=endo_lag + 1
+    # )
+    # _x2 = _x2[:, 0:endo_lag]
+    # _y = _x2[:, -1:]
+    # test_y = _y
+    #
+    #
+    # num_samples = min(_x1.shape[0], _x2.shape[0])
+    # _x1 = _x1[-num_samples:]
+    # _x2 = _x2[-num_samples:]
+    # test_y = test_y[-num_samples:, :]
+    #
+    # ae2_inp = np.concatenate([_x1, _x2], axis=-1)
+    # test_x = ae_2_obj.model.predict(ae2_inp)
+
+    val_x, val_y = format_data(ae_1_obj, ae_2_obj, type='val')
+    val_mse = lstm_model_obj.validate(val_x, val_y)
+    test_x, test_y = format_data(ae_1_obj, ae_2_obj, type ='test')
     test_mse = lstm_model_obj.test(test_x, test_y)
-    return test_mse
+    return train_mse , val_mse , test_mse
 
 
 def run_all():
     global exog_lag
     global endo_lag
 
-    res_dict = {}
-    for ex in [8, 32, 64]:
-        res_dict[ex] = {}
-        for en in [8, 32, 64] :
+    columns = [
+        'Exogenous Window size',
+        'Endogenous Window size',
+        'Train Error',
+        'Validation Error',
+        'Test Error'
+        ]
+    df = pd.DataFrame(columns=columns)
+
+    for ex in [8, 16, 32, 64 ,128 ,256, 512]:
+
+        for en in [8, 16, 32, 64 ,128 ,256, 512] :
+            res_dict = {}
             exog_lag = ex
             endo_lag = en
-            res = experiment()
-            res_dict[ex][en] = res
+            train_mse , val_mse , test_mse = experiment()
+            res_dict[columns[0]] = ex
+            res_dict[columns[1]] = en
+            res_dict[columns[2]] = train_mse
+            res_dict[columns[3]] = val_mse
+            res_dict[columns[4]] = test_mse
+            df = df.append(res_dict, ignore_index=True)
 
-    print 'Test MSE'
-    print res_dict
+    df.to_csv('model_3_1_op.csv')
     return
 
 run_all()

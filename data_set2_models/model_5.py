@@ -202,7 +202,7 @@ def experiment():
     end_window_size = 16
     encoder_layer_units = [16, 8]
     decoder_layer_units = [16, 8]
-    epochs = 350
+    epochs = 1
     lstm_time_steps = 16
     batch_size = 128
 
@@ -253,7 +253,7 @@ def experiment():
                 res_dict[columns[5]] = train_mse
                 res_dict[columns[6]] = val_mse
                 res_dict[columns[7]] = test_mse
-
+                df = df.append(res_dict,ignore_index=True)
     df.to_csv('model_5_op.csv')
 
 experiment()
