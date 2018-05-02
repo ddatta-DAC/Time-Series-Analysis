@@ -11,20 +11,21 @@
   - [ z[t-w2), z(t-w2+1), ... z(t-1)]
 
 '''
-
+#
 import data_feeder
+import pandas as pd
 import tensorflow as tf
 import numpy as np
 import sklearn
 from sklearn.svm import SVR
 from itertools import tee, izip
 import matplotlib.pyplot as plt
+import os
 
 # -- Common hyperparams -- #
 
-window_size = 100
-ae_max_epochs = 1000
-
+window_size = 32
+ae_max_epochs = 250
 # ------------------------------------------------------------ #
 # design the autoencoder #
 
@@ -32,7 +33,7 @@ class ae:
 
     def __init__(self):
         self.set_hyperparams()
-        self.max_epochs = ae_max_epochs
+
         return
 
     def layerwise_train(self):
@@ -51,9 +52,11 @@ class ae:
         self.sess.run(init)
 
     def set_hyperparams(self):
-        self.inp_dim = 81
-        self.batch_size = 256
-        self.layer_dims = [64, 32]
+        global ae_max_epochs
+        self.max_epochs = ae_max_epochs
+        self.inp_dim = 5
+        self.batch_size = 64
+        self.layer_dims = [64, 16]
         self.num_hidden_layers = len(self.layer_dims)
         self.weights = [None] * self.num_hidden_layers
         self.bias_enc = [None] * self.num_hidden_layers
@@ -127,7 +130,12 @@ class ae:
         for ep in range(self.max_epochs):
             batched_data = self.create_batches()
             for d in batched_data:
-                l, _ = self.sess.run([self.loss, self.t], feed_dict={self.x: d})
+                l, _ = self.sess.run([self.loss,
+                                      self.t],
+                                     feed_dict={
+                                         self.x: d
+                                     }
+                        )
                 print 'Loss in training ', l
 
     def reduce(self, data):
@@ -136,7 +144,6 @@ class ae:
 
 
 def pretrain_ae(X_train):
-
     data_x = X_train
     ae_obj = ae()
     ae_obj.set_data(data_x)
@@ -145,9 +152,8 @@ def pretrain_ae(X_train):
     print ae_op.shape
     return ae_obj, ae_op
 
-# --------------------------------------------------------------------------------------- #
 
-X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data(True)
+# --------------------------------------------------------------------------------------- #
 
 
 # ----------------- #
@@ -155,7 +161,7 @@ X_train, X_test, Y_train, Y_test, scaler_array = data_feeder.get_data(True)
 # ----------------- #
 
 
-def get_windowed_y( data , window_size):
+def get_windowed_y(data, window_size):
     y = list(np.reshape(data, [data.shape[0]]))
     print len(y)
 
@@ -169,86 +175,160 @@ def get_windowed_y( data , window_size):
 
     inp = []
     op = []
-    for w in window(y, window_size+1):
+    for w in window(y, window_size + 1):
         inp.append(w[:-1])
         op.append(w[-1])
 
     inp = np.asarray(inp)
-    op = np.reshape(np.asarray(op),[-1,1])
+    op = np.reshape(np.asarray(op), [-1, 1])
     print inp.shape
     print op.shape
     return inp, op
 
 
-# set up train data
-ae_obj, X_train_ae = pretrain_ae(X_train)
-train_y_inp, train_y_op = get_windowed_y (Y_train, window_size = window_size)
-train_exog_inp = X_train_ae[window_size:,:]
-print ' train_exog_inp ', train_exog_inp.shape
-# concatenate train_exog_inp and train_y_op
-train_data_x = np.concatenate([train_y_inp,train_exog_inp],axis = 1)
-print 'train_data_x', train_data_x.shape
-print 'Train Data'
-print 'Train_data_x ', train_data_x.shape
-print 'train_data_x', train_y_op.shape
+def get_train_data():
+    global ae_obj
+    global window_size
 
-# set up test data the model
+    X_train, _, Y_train, _, _ = data_feeder.get_data(True)
 
-test_y_inp,test_y_op = get_windowed_y(Y_test,window_size = window_size)
-X_test_ae = ae_obj.reduce(X_test)
-test_exog_inp = X_test_ae[window_size:,:]
-# concatenate train_exog_inp and train_y_op
-test_data_x = np.concatenate([test_y_inp,test_exog_inp],axis = 1)
-print 'Test Data'
-print test_data_x.shape
-print test_y_op.shape
+    # set up train data
+    ae_obj, X_train_ae = pretrain_ae(X_train)
+    train_y_inp, train_y_op = get_windowed_y(Y_train, window_size=window_size)
+    train_exog_inp = X_train_ae[window_size:, :]
+    print ' train_exog_inp ', train_exog_inp.shape
+    # concatenate train_exog_inp and train_y_op
+    train_data_x = np.concatenate([train_y_inp, train_exog_inp], axis=1)
+    print 'train_data_x', train_data_x.shape
+    print 'Train Data'
+    print 'Train_data_x ', train_data_x.shape
+    print 'train_data_x', train_y_op.shape
+    return train_data_x, train_y_op
 
-# initialise the Support Vector Regressor
-# model = SVR(kernel='rbf',
-#             C=1.0,
-#             gamma=1.0,
-#             epsilon=0.2,
-#             verbose=True
-#             )
-model = SVR(kernel='poly',
-            C=1.0,
-            degree= 5,
-            epsilon=0.2,
-            verbose=True
-            )
+def get_val_data():
+    global ae_obj
+    global window_size
 
+    _, X_val, _, _, Y_val, _, _ = data_feeder.get_data_val(True)
 
-model.fit( X = train_data_x, y = train_y_op)
-pred_res = model.predict(test_data_x)
-mse = sklearn.metrics.mean_squared_error(pred_res,test_y_op)
-y_scaler_obj = scaler_array[-1]
-print mse
+    # set up test data the model
+    val_y_inp, val_y_op = get_windowed_y(
+        Y_val,
+        window_size=window_size
+    )
+    X_val_ae = ae_obj.reduce(X_val)
+    val_exog_inp = X_val_ae[window_size:, :]
+    # concatenate train_exog_inp and train_y_op
+    val_data_x = np.concatenate([val_y_inp, val_exog_inp], axis=1)
+    print 'Validation  Data'
+    print val_data_x.shape
+    print val_y_op.shape
 
-# unscaled_pred_result = [ z for z in y_scaler_obj.inverse_transform(pred_res)]
-# unscaled_y = [ z for z in y_scaler_obj.inverse_transform(test_y_op) ]
-# mse = sklearn.metrics.mean_squared_error(pred_res , test_y_op)
-# print mse
-
-print len(pred_res)
-
-# # plot the graph!
-# disp_x = range(len(unscaled_y))
-# plt.plot(disp_x,unscaled_y,'r-')
-# plt.plot(disp_x,unscaled_pred_result,'b-')
-# plt.show()
-
-print 'Mean Square Error ', mse
+    return val_data_x, val_y_op
 
 
 
-# data_y1 = np.random.randn(1000, 30)
-# data_y2 = np.random.randn(1000, 1)
-# model = SVR(kernel='rbf',
-#             C=1.0,
-#             gamma=1.0,
-#             epsilon=0.2,
-#             verbose=True
-#             )
-#
-# model.fit(X=data_y1, y=data_y2)
-# model.predict(data_y1)
+def get_test_data():
+    global ae_obj
+    global window_size
+
+    _, _, X_test, _, _, Y_test, _ = data_feeder.get_data_val(True)
+
+    # set up test data the model
+    test_y_inp, test_y_op = get_windowed_y(
+        Y_test,
+        window_size=window_size
+    )
+
+    X_test_ae = ae_obj.reduce(X_test)
+    test_exog_inp = X_test_ae[window_size:, :]
+
+    # concatenate train_exog_inp and train_y_op
+    test_data_x = np.concatenate(
+        [test_y_inp, test_exog_inp],
+        axis=1
+    )
+
+    print 'Test Data'
+    print test_data_x.shape
+    print test_y_op.shape
+    return test_data_x, test_y_op
+
+
+def get_svr(type='poly'):
+    if type == 'poly':
+        model = SVR(kernel='poly',
+                    C=1.0,
+                    degree=5,
+                    epsilon=0.1,
+                    verbose=True
+                    )
+        return model
+    if type == 'rbf':
+        model = SVR(kernel='rbf',
+                    C=1.0,
+                    gamma=1.0,
+                    epsilon=0.1,
+                    verbose=True
+                    )
+        return model
+
+
+def experiment():
+    global window_size
+
+    columns = [
+        'Window size',
+        'Kernel Type',
+        'Train Error',
+        'Validation Error',
+        'Test Error'
+    ]
+    df = pd.DataFrame(columns=columns)
+
+    _window_size = [ 8, 16, 64, 128, 256, 512 ]
+    k_type = ['poly', 'rbf']
+    for k in k_type:
+
+        for w in _window_size:
+            res_dict = {}
+            print '----'
+            print 'SVR', k , 'Window ', w
+
+            window_size = w
+            model = get_svr(k)
+
+            train_data_x, train_y_op = get_train_data()
+            val_data_x, val_y_op = get_val_data()
+            test_data_x, test_y_op = get_test_data()
+
+
+            # Train
+            model.fit(
+                X= train_data_x,
+                y=train_y_op)
+
+            train_res = model.predict(train_data_x)
+            train_mse = sklearn.metrics.mean_squared_error(train_res, train_y_op)
+
+            # Validate
+            val_res = model.predict(val_data_x)
+            val_mse = sklearn.metrics.mean_squared_error(val_res, val_y_op)
+            # Test
+            pred_res = model.predict(test_data_x)
+            test_mse = sklearn.metrics.mean_squared_error(pred_res, test_y_op)
+
+            print train_mse, val_mse, test_mse
+            res_dict[columns[0]] = window_size
+            res_dict[columns[1]] = k
+            res_dict[columns[2]] = train_mse
+            res_dict[columns[3]] = val_mse
+            res_dict[columns[4]] = test_mse
+            df = df.append(res_dict, ignore_index=True)
+
+
+    df.to_csv('model_3_1_op.csv')
+
+
+
+experiment()

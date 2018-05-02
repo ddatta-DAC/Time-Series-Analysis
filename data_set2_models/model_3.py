@@ -13,7 +13,7 @@
 '''
 #
 import data_feeder_2 as data_feeder
-
+import pandas as pd
 import tensorflow as tf
 import numpy as np
 import sklearn
@@ -205,17 +205,50 @@ def get_train_data():
     print 'train_data_x', train_y_op.shape
     return train_data_x, train_y_op
 
+def get_val_data():
+    global ae_obj
+    global window_size
+
+    _, X_val, _, _, Y_val, _, _ = data_feeder.get_data_val(True)
+
+    # set up test data the model
+    val_y_inp, val_y_op = get_windowed_y(
+        Y_val,
+        window_size=window_size
+    )
+    X_val_ae = ae_obj.reduce(X_val)
+    val_exog_inp = X_val_ae[window_size:, :]
+    # concatenate train_exog_inp and train_y_op
+    val_data_x = np.concatenate([val_y_inp, val_exog_inp], axis=1)
+    print 'Validation  Data'
+    print val_data_x.shape
+    print val_y_op.shape
+
+    return val_data_x, val_y_op
+
+
+
 def get_test_data():
     global ae_obj
     global window_size
 
-    _, X_test, _, Y_test, _ = data_feeder.get_data(True)
+    _, _, X_test, _, _, Y_test, _ = data_feeder.get_data_val(True)
+
     # set up test data the model
-    test_y_inp, test_y_op = get_windowed_y(Y_test, window_size=window_size)
+    test_y_inp, test_y_op = get_windowed_y(
+        Y_test,
+        window_size=window_size
+    )
+
     X_test_ae = ae_obj.reduce(X_test)
     test_exog_inp = X_test_ae[window_size:, :]
+
     # concatenate train_exog_inp and train_y_op
-    test_data_x = np.concatenate([test_y_inp, test_exog_inp], axis=1)
+    test_data_x = np.concatenate(
+        [test_y_inp, test_exog_inp],
+        axis=1
+    )
+
     print 'Test Data'
     print test_data_x.shape
     print test_y_op.shape
@@ -243,12 +276,24 @@ def get_svr(type='poly'):
 
 def experiment():
     global window_size
-    res_dict = { }
-    _window_size = [8,64,128, 256]
+
+    columns = [
+        'Window size',
+        'Kernel Type',
+        'Train Error',
+        'Validation Error',
+        'Test Error'
+    ]
+    df = pd.DataFrame(columns=columns)
+
+
+
+    _window_size = [ 8, 16, 64, 128, 256, 512 ]
     k_type = ['poly', 'rbf']
     for k in k_type:
-        res_dict[k] = { }
+
         for w in _window_size:
+            res_dict = {}
             print '----'
             print 'SVR', k , 'Window ', w
 
@@ -256,24 +301,36 @@ def experiment():
             model = get_svr(k)
 
             train_data_x, train_y_op = get_train_data()
+            val_data_x, val_y_op = get_val_data()
             test_data_x, test_y_op = get_test_data()
 
 
             # Train
-            model.fit(X= train_data_x,
-                      y=train_y_op)
-            # train_loss = history.history['loss']
-            # print 'Test Mean Square Error', train_loss
-            # Test
+            model.fit(
+                X= train_data_x,
+                y=train_y_op)
 
+            train_res = model.predict(train_data_x)
+            train_mse = sklearn.metrics.mean_squared_error(train_res, train_y_op)
+
+            # Validate
+            val_res = model.predict(val_data_x)
+            val_mse = sklearn.metrics.mean_squared_error(val_res, val_y_op)
+            # Test
             pred_res = model.predict(test_data_x)
             test_mse = sklearn.metrics.mean_squared_error(pred_res, test_y_op)
-            print 'Testing Mean Square Error ', test_mse
-            print '----'
-            res_dict[k][w] = test_mse
 
-    print'Results...'
-    print res_dict
+            print train_mse, val_mse, test_mse
+            res_dict[columns[0]] = window_size
+            res_dict[columns[1]] = k
+            res_dict[columns[2]] = train_mse
+            res_dict[columns[3]] = val_mse
+            res_dict[columns[4]] = test_mse
+            df = df.append(res_dict, ignore_index=True)
+
+
+    df.to_csv('model_3_1_op.csv')
+
 
 
 experiment()
