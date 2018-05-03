@@ -202,7 +202,7 @@ def experiment():
     end_window_size = 16
     encoder_layer_units = [16, 8]
     decoder_layer_units = [16, 8]
-    epochs = 350
+    epochs = 100
     lstm_time_steps = 16
     batch_size = 128
 
