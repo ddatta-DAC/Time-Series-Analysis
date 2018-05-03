@@ -17,8 +17,8 @@ from keras.models import load_model
 
 window_size = 64
 exog_dim = 81
-batch_size = 128
-epochs = 325
+batch_size = 64
+epochs = 150
 
 
 def get_windowed_data_en(data, window_size):

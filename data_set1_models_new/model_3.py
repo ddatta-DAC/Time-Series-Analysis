@@ -25,7 +25,7 @@ import os
 # -- Common hyperparams -- #
 
 window_size = 32
-ae_max_epochs = 250
+ae_max_epochs = 150
 # ------------------------------------------------------------ #
 # design the autoencoder #
 
