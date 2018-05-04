@@ -1,0 +1,16 @@
+Dual-Stage Attention-based Recurrent Neural Network
+Created by Yao Qin at UC San Diego
+Email: yaq007@eng.ucsd.edu
+The copyright of the code belongs to NEC Labs America. Please use the code only for academic research.
+
+Please install Tensorflow 1.1.0 first before running our codes.
+
+You can directly run the “dual_stage.py” file for training DA-RNN.
+
+Citation:
+If you are using the code/model/data provided here in a publication, please cite our paper:
+
+A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction
+Yao Qin, Dongjin Song, Haifeng Cheng, Wei Cheng, Guofei Jiang, Garrison. W. Cottrell
+International Joint Conference on Artificial Intelligence (IJCAI), 2017. 
+
