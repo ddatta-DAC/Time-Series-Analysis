@@ -5,6 +5,7 @@ import numpy as np
 import data_feeder_2 as data_feeder
 import utils
 import math
+import pandas as pd
 
 
 # --------------------------- #
@@ -13,11 +14,15 @@ import math
 
 def get_data(time_window, type):
     # window of training data = time_window
-    X_train, X_test, Y_train, Y_test, _ = data_feeder.get_data(std=True)
+    X_train, X_val, X_test, Y_train, Y_val, Y_test, _ = data_feeder.get_data_val(std=True)
+
 
     if type == 'test':
         exg_x = X_test
         end_x = Y_test
+    elif type == 'val':
+        exg_x = X_val
+        end_x = Y_val
     else:
         exg_x = X_train
         end_x = Y_train
@@ -43,6 +48,9 @@ def get_data(time_window, type):
     print exg_x.shape, end_x.shape, y.shape
     return exg_x, end_x, y
 
+def get_val_data(time_window):
+    type = "val"
+    return get_data(time_window, type)
 
 def get_test_data(time_window):
     type = "test"
@@ -206,12 +214,28 @@ class model:
         print 'Train Loss', train_loss
         return np.mean(train_loss)
 
+
+
+    def val_model(self, val_x_end, val_x_exg, val_y):
+
+        score = self.model.evaluate(
+            [val_x_end, val_x_exg],
+            [val_y],
+            batch_size=32
+        )
+        print 'Val Score', np.mean(score)
+        return np.mean(score)
+
+
+
+
+
     def test_model(self, test_x_end, test_x_exg, test_y):
 
         score = self.model.evaluate(
             [test_x_end, test_x_exg],
             [test_y],
-            batch_size=1
+            batch_size=32
         )
         print 'Test Score', np.mean(score)
         return np.mean(score)
@@ -219,18 +243,31 @@ class model:
 
 # ---------------------- #
 def experiment():
-    _num_layers = [3,5,6]
+
+    _num_layers = [3, 4, 6, 8, 10]
 
     batch_size = 64
-    epochs = 250
-    res_dict = {}
+    epochs = 150
+
+    columns = [
+        'Num Layers',
+        'Time Window',
+        'Train Error',
+        'Validation Error',
+        'Test Error'
+    ]
+
+    df = pd.DataFrame(columns=columns)
 
     for num_layers in _num_layers:
+
         time_steps = int(math.pow(2, num_layers))
         print 'time_steps ', time_steps
 
         train_x_exg, train_x_end, train_y = get_training_data(time_steps)
+        val_x_end, val_x_exg, val_y = get_val_data(time_steps)
         test_x_exg, test_x_end, test_y = get_test_data(time_steps)
+
         exog_dim = 5
         model_obj = model()
         model_obj.set_hyperparameters(
@@ -246,13 +283,21 @@ def experiment():
             train_x_end, train_x_exg, train_y
         )
         train_mse = model_obj.train_model()
+        val_mse = model_obj.val_model( val_x_end, val_x_exg, val_y)
         test_mse = model_obj.test_model( test_x_exg, test_x_end, test_y)
 
-        res_dict[num_layers] = [time_steps, train_mse, test_mse]
+        res_dict = {}
+        res_dict[columns[0]] = num_layers
+        res_dict[columns[1]] = time_steps
+        res_dict[columns[2]] = train_mse
+        res_dict[columns[3]] = val_mse
+        res_dict[columns[4]] = test_mse
+        df = df.append(res_dict, ignore_index=True)
+        print res_dict
 
-    print '----'
-    print ' Num Layers :  time_steps , train mse, test mse '
-    print res_dict
+
+
+    df.to_csv('model_4_1_op.csv')
     return
 
 
